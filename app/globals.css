@@ -1,26 +1,32 @@
 @import "tailwindcss";
-
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  /* Colours */
+  --color-page:    #ffffff;
+  --color-card:    #f4f4f5;
+  --color-pill:    #e9e9eb;
+  --color-border:  #e4e4e7;
+  --color-text:    #111111;
+  --color-muted:   #999999;
+  --color-accent:  #2563eb;
+  --color-success: #16a34a;
+  --color-warning: #d97706;
+  --color-danger:  #dc2626;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  /* Typography */
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-sans:    'Inter', sans-serif;
+
+  /* Radius */
+  --radius-card: 20px;
+  --radius-pill: 12px;
+  --radius-btn:  10px;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: #ffffff;
+  color: #111111;
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
 }

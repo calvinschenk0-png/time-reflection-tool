@@ -23,22 +23,29 @@ export default function NavBar({ userEmail }: { userEmail: string }) {
   }
 
   return (
-    <header className="bg-white border-b border-gray-200">
-      <div className="max-w-5xl mx-auto px-4 flex items-center justify-between h-14">
-        <span className="font-semibold text-gray-900 text-sm">Time Reflection</span>
+    <header style={{ borderBottom: '1px solid #e4e4e7', background: '#ffffff' }}>
+      <div style={{ maxWidth: 560, margin: '0 auto', padding: '0 24px', height: 52, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 14, fontWeight: 700, color: '#111', letterSpacing: '-0.02em' }}>
+          TimeReflection
+        </span>
 
-        <nav className="flex items-center gap-1">
+        <nav style={{ display: 'flex', gap: 4 }}>
           {navItems.map(item => {
-            const active = pathname === item.href
+            const active = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href))
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                  active
-                    ? 'bg-gray-100 text-gray-900'
-                    : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
-                }`}
+                style={{
+                  fontSize: 13,
+                  fontWeight: active ? 600 : 400,
+                  color: active ? '#111' : '#999',
+                  padding: '4px 10px',
+                  borderRadius: 6,
+                  background: active ? '#f4f4f5' : 'transparent',
+                  textDecoration: 'none',
+                  transition: 'background 0.1s',
+                }}
               >
                 {item.label}
               </Link>
@@ -46,15 +53,12 @@ export default function NavBar({ userEmail }: { userEmail: string }) {
           })}
         </nav>
 
-        <div className="flex items-center gap-3">
-          <span className="text-xs text-gray-400 hidden sm:block">{userEmail}</span>
-          <button
-            onClick={handleSignOut}
-            className="text-sm text-gray-500 hover:text-gray-900"
-          >
-            Sign out
-          </button>
-        </div>
+        <button
+          onClick={handleSignOut}
+          style={{ fontSize: 13, color: '#999', background: 'none', border: 'none', cursor: 'pointer' }}
+        >
+          Sign out
+        </button>
       </div>
     </header>
   )
