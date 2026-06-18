@@ -28,7 +28,7 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // Allow login page and auth callback through without a session
-  const isPublicPath = pathname === '/login' || pathname.startsWith('/auth/')
+  const isPublicPath = pathname === '/login' || pathname.startsWith('/auth/') || pathname.startsWith('/design/')
 
   if (!user && !isPublicPath) {
     return NextResponse.redirect(new URL('/login', request.url))
