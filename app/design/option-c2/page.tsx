@@ -112,17 +112,17 @@ export default function OptionC2() {
             </div>
           </div>
 
-          {/* Card 2: Week strip */}
-          <div style={{ ...card }}>
+          {/* Card 2: Week strip — compact */}
+          <div style={{ ...card, padding: '14px 16px' }}>
             {/* Week nav */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16, marginBottom: 18 }}>
-              <span style={{ color: '#bbb', fontSize: 18, cursor: 'pointer', userSelect: 'none' }}>‹</span>
-              <span className="font-display" style={{ fontSize: 12, fontWeight: 600, color: '#999', letterSpacing: '0.08em' }}>THIS WEEK</span>
-              <span style={{ color: '#bbb', fontSize: 18, cursor: 'pointer', userSelect: 'none' }}>›</span>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, marginBottom: 12 }}>
+              <span style={{ color: '#bbb', fontSize: 16, cursor: 'pointer', userSelect: 'none' }}>‹</span>
+              <span className="font-display" style={{ fontSize: 11, fontWeight: 600, color: '#999', letterSpacing: '0.08em' }}>THIS WEEK</span>
+              <span style={{ color: '#bbb', fontSize: 16, cursor: 'pointer', userSelect: 'none' }}>›</span>
             </div>
 
             {/* Day pills */}
-            <div style={{ display: 'flex', gap: 6, justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', gap: 5, justifyContent: 'space-between' }}>
               {days.map(d => (
                 <div
                   key={d.date}
@@ -132,34 +132,34 @@ export default function OptionC2() {
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
-                    gap: 8,
+                    gap: 5,
                     background: d.isToday ? '#2563eb' : '#e9e9eb',
-                    borderRadius: 14,
-                    padding: '12px 4px',
+                    borderRadius: 12,
+                    padding: '8px 4px',
                     border: d.isToday ? '2px solid #93c5fd' : '2px solid transparent',
                   }}
                 >
-                  <span style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.04em', color: d.isToday ? '#bfdbfe' : '#999' }}>{d.abbr}</span>
-                  <span className="font-display" style={{ fontSize: 15, fontWeight: 700, color: d.isToday ? '#fff' : '#333' }}>{d.date}</span>
+                  <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: '0.04em', color: d.isToday ? '#bfdbfe' : '#999' }}>{d.abbr}</span>
+                  <span className="font-display" style={{ fontSize: 13, fontWeight: 700, color: d.isToday ? '#fff' : '#333' }}>{d.date}</span>
 
                   {d.logged ? (
-                    <div style={{ width: 20, height: 20, borderRadius: 99, background: '#16a34a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <svg width={11} height={9} viewBox="0 0 11 9" fill="none">
+                    <div style={{ width: 16, height: 16, borderRadius: 99, background: '#16a34a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <svg width={9} height={7} viewBox="0 0 11 9" fill="none">
                         <path d="M1 4L4 7.5L10 1" stroke="#fff" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
                       </svg>
                     </div>
                   ) : d.isToday ? (
-                    <div style={{ width: 20, height: 20, borderRadius: 99, border: '2px solid #93c5fd', background: 'transparent' }} />
+                    <div style={{ width: 16, height: 16, borderRadius: 99, border: '2px solid #93c5fd', background: 'transparent' }} />
                   ) : (
-                    <div style={{ width: 20, height: 20, borderRadius: 99, border: '2px solid #ccc', background: 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <div style={{ width: 8, height: 2, background: '#ccc', borderRadius: 99 }} />
+                    <div style={{ width: 16, height: 16, borderRadius: 99, border: '2px solid #ccc', background: 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <div style={{ width: 6, height: 2, background: '#ccc', borderRadius: 99 }} />
                     </div>
                   )}
                 </div>
               ))}
             </div>
 
-            <p style={{ fontSize: 11, color: '#aaa', textAlign: 'center', marginTop: 14 }}>
+            <p style={{ fontSize: 10, color: '#aaa', textAlign: 'center', marginTop: 10 }}>
               3 unlogged days · tap a day to log it
             </p>
           </div>
