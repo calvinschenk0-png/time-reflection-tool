@@ -22,7 +22,7 @@ export default function SettingsShell({ initialSettings, initialNodes, initialCo
         Settings
       </h1>
 
-      {/* Tab bar */}
+      {/* Tab bar — always in the same position */}
       <div style={{ display: 'flex', gap: 4, background: '#f4f4f5', borderRadius: 12, padding: 4, marginBottom: 20 }}>
         {TABS.map(t => (
           <button
@@ -47,9 +47,10 @@ export default function SettingsShell({ initialSettings, initialNodes, initialCo
         ))}
       </div>
 
-      {tab === 'General'    && <GeneralTab    initialSettings={initialSettings} />}
-      {tab === 'Categories' && <CategoriesTab initialNodes={initialNodes} />}
-      {tab === 'Contacts'   && <ContactsTab   initialContacts={initialContacts} />}
+      {/* All tabs stay mounted — hidden with CSS so local state is never lost */}
+      <div style={{ display: tab === 'General'    ? 'block' : 'none' }}><GeneralTab    initialSettings={initialSettings} /></div>
+      <div style={{ display: tab === 'Categories' ? 'block' : 'none' }}><CategoriesTab initialNodes={initialNodes} /></div>
+      <div style={{ display: tab === 'Contacts'   ? 'block' : 'none' }}><ContactsTab   initialContacts={initialContacts} /></div>
     </PageShell>
   )
 }

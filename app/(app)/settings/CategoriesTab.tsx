@@ -115,7 +115,7 @@ export default function CategoriesTab({ initialNodes }: { initialNodes: Node[] }
 
       {/* Add form */}
       {adding && (
-        <Card style={{ border: '2px solid #2563eb' }}>
+        <Card style={{ background: '#eef3ff' }}>
           <SectionHeading>
             {adding.level === 'project'
               ? 'New project'
@@ -132,7 +132,7 @@ export default function CategoriesTab({ initialNodes }: { initialNodes: Node[] }
           {adding.level === 'project' && (
             <div style={{ marginBottom: 16 }}>
               <label style={{ display: 'block', fontSize: 12, color: '#666', marginBottom: 8, fontWeight: 500 }}>
-                Colour (used in charts)
+                Color (used in charts)
               </label>
               <div style={{ display: 'flex', gap: 8 }}>
                 {COLORS.map(c => (
