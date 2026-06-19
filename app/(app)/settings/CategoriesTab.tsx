@@ -66,6 +66,22 @@ export default function CategoriesTab({ initialNodes }: { initialNodes: Node[] }
     setNodes(n => n.map(node => node.id === id ? { ...node, is_archived: false } : node))
   }
 
+  async function hardDelete(node: Node) {
+    const label = node.level === 'project' ? 'project (and any workstreams inside it)' : 'workstream'
+    if (!confirm(`Permanently delete this ${label}? This cannot be undone.`)) return
+
+    const { error } = await supabase.from('hierarchy_nodes').delete().eq('id', node.id)
+
+    if (error) {
+      // The database blocks deletion when logged time still references this node.
+      alert("Can't delete — this category has logged time against it. Archive it instead so the history stays intact.")
+      return
+    }
+
+    // Remove the node (and, for a project, its now-cascade-deleted workstreams) from the UI
+    setNodes(n => n.filter(x => x.id !== node.id && x.parent_id !== node.id))
+  }
+
   function cancel() {
     setAdding(null)
     setForm({ name: '', color: COLORS[0] })
@@ -232,6 +248,12 @@ export default function CategoriesTab({ initialNodes }: { initialNodes: Node[] }
                     style={{ fontSize: 12, color: '#2563eb', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 500 }}
                   >
                     Restore
+                  </button>
+                  <button
+                    onClick={() => hardDelete(node)}
+                    style={{ fontSize: 12, color: '#dc2626', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 500 }}
+                  >
+                    Delete
                   </button>
                 </div>
               ))}
