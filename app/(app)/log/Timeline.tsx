@@ -13,8 +13,8 @@ type DragState = {
   moved: boolean
 }
 
-const SNAP = 5        // minutes
-const MIN_DUR = 5     // minutes
+const SNAP = 15       // minutes
+const MIN_DUR = 15    // minutes
 
 export default function Timeline({ entries, nodes, selectedId, onSelect, onCommitTimes }: {
   entries: Entry[]

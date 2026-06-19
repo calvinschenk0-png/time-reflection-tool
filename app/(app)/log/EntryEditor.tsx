@@ -21,6 +21,14 @@ export default function EntryEditor({ entry, nodes, contacts, onUpdate, onDelete
   const end = timeToMinutes(entry.end_time)
   const invalid = end <= start
 
+  // Round any entered time to the nearest 15 minutes
+  function round15(hhmm: string): string {
+    const [h, m] = hhmm.split(':').map(Number)
+    let total = Math.round((h * 60 + m) / 15) * 15
+    total = Math.max(0, Math.min(24 * 60, total))
+    return `${String(Math.floor(total / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}:00`
+  }
+
   return (
     <Card>
       {/* Times */}
@@ -29,8 +37,9 @@ export default function EntryEditor({ entry, nodes, contacts, onUpdate, onDelete
           <label style={labelStyle}>Start</label>
           <input
             type="time"
+            step={900}
             value={entry.start_time.slice(0, 5)}
-            onChange={e => onUpdate(entry.id, { start_time: e.target.value + ':00' })}
+            onChange={e => e.target.value && onUpdate(entry.id, { start_time: round15(e.target.value) })}
             style={inputStyle}
           />
         </div>
@@ -38,8 +47,9 @@ export default function EntryEditor({ entry, nodes, contacts, onUpdate, onDelete
           <label style={labelStyle}>End</label>
           <input
             type="time"
+            step={900}
             value={entry.end_time.slice(0, 5)}
-            onChange={e => onUpdate(entry.id, { end_time: e.target.value + ':00' })}
+            onChange={e => e.target.value && onUpdate(entry.id, { end_time: round15(e.target.value) })}
             style={inputStyle}
           />
         </div>
