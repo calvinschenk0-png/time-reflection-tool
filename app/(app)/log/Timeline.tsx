@@ -4,6 +4,7 @@ import { useRef, useEffect, useState } from 'react'
 import { PX_PER_MIN, DAY_MINUTES, timeToMinutes, formatClock } from '@/lib/time'
 import { Node, Entry } from './types'
 import { isComplete } from './status'
+import { resolveDrag } from './overlap'
 
 type DragState = {
   id: string
@@ -63,7 +64,11 @@ export default function Timeline({ entries, nodes, selectedId, onSelect, onCommi
 
     function onUp() {
       if (preview && drag!.moved) {
-        onCommitTimes(drag!.id, preview.start, preview.end)
+        const others = entries
+          .filter(e => e.id !== drag!.id)
+          .map(e => ({ s: timeToMinutes(e.start_time), e: timeToMinutes(e.end_time) }))
+        const adj = resolveDrag(others, drag!.mode, preview.start, preview.end, drag!.origStart, drag!.origEnd)
+        if (adj) onCommitTimes(drag!.id, adj.start, adj.end)
       } else if (!drag!.moved) {
         onSelect(drag!.id)
       }
@@ -77,7 +82,7 @@ export default function Timeline({ entries, nodes, selectedId, onSelect, onCommi
       window.removeEventListener('pointermove', onMove)
       window.removeEventListener('pointerup', onUp)
     }
-  }, [drag, preview, onCommitTimes, onSelect])
+  }, [drag, preview, onCommitTimes, onSelect, entries])
 
   const sorted = [...entries].sort((a, b) => timeToMinutes(a.start_time) - timeToMinutes(b.start_time))
 

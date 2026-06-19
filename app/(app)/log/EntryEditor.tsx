@@ -5,8 +5,9 @@ import { Card, DangerButton } from '@/components/ui'
 import { timeToMinutes, minutesToTime, formatClock, formatDuration } from '@/lib/time'
 import { Node, Contact, Entry } from './types'
 import CategoryPicker from './CategoryPicker'
+import ContactPicker from './ContactPicker'
 
-export default function EntryEditor({ entry, nodes, contacts, onUpdate, onDelete, onToggleContact, onNodesChanged, fillHeight }: {
+export default function EntryEditor({ entry, nodes, contacts, onUpdate, onDelete, onToggleContact, onNodesChanged, onContactsChanged, fillHeight }: {
   entry: Entry
   nodes: Node[]
   contacts: Contact[]
@@ -14,6 +15,7 @@ export default function EntryEditor({ entry, nodes, contacts, onUpdate, onDelete
   onDelete: (id: string) => void
   onToggleContact: (entryId: string, contactId: string) => void
   onNodesChanged: (nodes: Node[]) => void
+  onContactsChanged: (contacts: Contact[]) => void
   fillHeight?: boolean
 }) {
   const [note, setNote] = useState(entry.note ?? '')
@@ -50,28 +52,15 @@ export default function EntryEditor({ entry, nodes, contacts, onUpdate, onDelete
       </div>
 
       {/* Contacts */}
-      {contacts.length > 0 && (
-        <div style={{ marginBottom: 16 }}>
-          <label style={labelStyle}>People</label>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-            {contacts.map(c => {
-              const active = entry.contactIds.includes(c.id)
-              return (
-                <button
-                  key={c.id}
-                  onClick={() => onToggleContact(entry.id, c.id)}
-                  style={{
-                    padding: '5px 10px', borderRadius: 99, fontSize: 12, cursor: 'pointer', border: 'none',
-                    background: active ? '#111' : '#e9e9eb', color: active ? '#fff' : '#555', fontWeight: active ? 600 : 400,
-                  }}
-                >
-                  {c.name}
-                </button>
-              )
-            })}
-          </div>
-        </div>
-      )}
+      <div style={{ marginBottom: 16 }}>
+        <label style={labelStyle}>People</label>
+        <ContactPicker
+          contacts={contacts}
+          selectedIds={entry.contactIds}
+          onToggle={(cid) => onToggleContact(entry.id, cid)}
+          onContactsChanged={onContactsChanged}
+        />
+      </div>
 
       {/* Note */}
       <label style={labelStyle}>Note</label>

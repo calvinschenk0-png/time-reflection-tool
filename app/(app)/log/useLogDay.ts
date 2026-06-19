@@ -28,6 +28,7 @@ export function useLogDay({ date, weekStart, settings, nodes, contacts, initialE
   )
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [allNodes, setAllNodes] = useState<Node[]>(nodes)
+  const [allContacts, setAllContacts] = useState<Contact[]>(contacts)
 
   const expectedMinutes = settings?.expected_workday_minutes ?? 480
   const selected = entries.find(e => e.id === selectedId) ?? null
@@ -126,7 +127,8 @@ export function useLogDay({ date, weekStart, settings, nodes, contacts, initialE
   const defaultDay = weekDates.includes(todayStr()) ? todayStr() : weekStart
 
   return {
-    date, weekStart, weekDates, defaultDay, contacts, expectedMinutes,
+    date, weekStart, weekDates, defaultDay, expectedMinutes,
+    contacts: allContacts, setAllContacts,
     entries, entriesForDay, selectedId, setSelectedId, allNodes, setAllNodes, selected,
     addEntry, updateEntry, commitDrag, deleteEntry, toggleContact,
     goToWeek, goToDate,

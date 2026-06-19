@@ -39,6 +39,7 @@ export default function LogDayMobile({ s }: { s: LogDayState }) {
               onDelete={(id) => { s.deleteEntry(id); s.setSelectedId(null) }}
               onToggleContact={s.toggleContact}
               onNodesChanged={s.setAllNodes}
+              onContactsChanged={s.setAllContacts}
             />
           </div>
         </>

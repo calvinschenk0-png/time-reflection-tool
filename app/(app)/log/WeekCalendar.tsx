@@ -4,6 +4,7 @@ import { useRef, useEffect, useState } from 'react'
 import { DAY_MINUTES, timeToMinutes, formatClock, shortDayLabel, todayStr } from '@/lib/time'
 import { Node, Entry } from './types'
 import { isComplete } from './status'
+import { resolveDrag } from './overlap'
 
 const PXPM = 1.0       // pixels per minute (week view)
 const SNAP = 15
@@ -73,8 +74,16 @@ export default function WeekCalendar({ weekDates, entries, nodes, selectedId, on
     }
 
     function onUp() {
-      if (preview && drag!.moved) onCommitDrag(drag!.id, preview.start, preview.end, preview.date)
-      else if (!drag!.moved) onSelect(drag!.id)
+      if (preview && drag!.moved) {
+        const others = entries
+          .filter(e => e.id !== drag!.id && e.entry_date === preview.date)
+          .map(e => ({ s: timeToMinutes(e.start_time), e: timeToMinutes(e.end_time) }))
+        const adj = resolveDrag(others, drag!.mode, preview.start, preview.end, drag!.origStart, drag!.origEnd)
+        if (adj) onCommitDrag(drag!.id, adj.start, adj.end, preview.date)
+        // if null: overlap unresolved — block snaps back (no commit)
+      } else if (!drag!.moved) {
+        onSelect(drag!.id)
+      }
       setDrag(null)
       setPreview(null)
     }
@@ -85,7 +94,7 @@ export default function WeekCalendar({ weekDates, entries, nodes, selectedId, on
       window.removeEventListener('pointermove', onMove)
       window.removeEventListener('pointerup', onUp)
     }
-  }, [drag, preview, onCommitDrag, onSelect, weekDates])
+  }, [drag, preview, onCommitDrag, onSelect, weekDates, entries])
 
   function effDate(e: Entry) { return preview?.id === e.id ? preview.date : e.entry_date }
   function effStart(e: Entry) { return preview?.id === e.id ? preview.start : timeToMinutes(e.start_time) }

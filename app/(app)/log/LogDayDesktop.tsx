@@ -47,6 +47,7 @@ export default function LogDayDesktop({ s }: { s: LogDayState }) {
                 onDelete={s.deleteEntry}
                 onToggleContact={s.toggleContact}
                 onNodesChanged={s.setAllNodes}
+                onContactsChanged={s.setAllContacts}
                 fillHeight
               />
             ) : (
