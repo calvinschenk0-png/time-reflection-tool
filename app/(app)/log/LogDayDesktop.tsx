@@ -29,6 +29,7 @@ export default function LogDayDesktop({ s }: { s: LogDayState }) {
           weekDates={s.weekDates}
           entries={s.entries}
           nodes={s.allNodes}
+          contacts={s.contacts}
           selectedId={s.selectedId}
           onSelect={s.setSelectedId}
           onCommitDrag={s.commitDrag}

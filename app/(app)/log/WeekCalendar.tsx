@@ -2,7 +2,7 @@
 
 import { useRef, useEffect, useState } from 'react'
 import { DAY_MINUTES, timeToMinutes, formatClock, shortDayLabel, todayStr } from '@/lib/time'
-import { Node, Entry } from './types'
+import { Node, Entry, Contact } from './types'
 import { isComplete } from './status'
 import { resolveDrag } from './overlap'
 
@@ -22,10 +22,11 @@ type DragState = {
   moved: boolean
 }
 
-export default function WeekCalendar({ weekDates, entries, nodes, selectedId, onSelect, onCommitDrag, onCreateEntry, onDeleteEntry }: {
+export default function WeekCalendar({ weekDates, entries, nodes, contacts, selectedId, onSelect, onCommitDrag, onCreateEntry, onDeleteEntry }: {
   weekDates: string[]
   entries: Entry[]
   nodes: Node[]
+  contacts: Contact[]
   selectedId: string | null
   onSelect: (id: string) => void
   onCommitDrag: (id: string, startMin: number, endMin: number, newDate: string) => void
@@ -147,6 +148,10 @@ export default function WeekCalendar({ weekDates, entries, nodes, selectedId, on
     if (!node) return null
     return node.parent_id ? nodes.find(n => n.id === node.parent_id) ?? null : node
   }
+  const contactById = new Map(contacts.map(c => [c.id, c.name]))
+  function peopleFor(entry: Entry) {
+    return entry.contactIds.map(id => contactById.get(id)).filter(Boolean).join(', ')
+  }
 
   function beginDrag(e: React.PointerEvent, entry: Entry, mode: DragState['mode']) {
     e.stopPropagation()
@@ -244,12 +249,24 @@ export default function WeekCalendar({ weekDates, entries, nodes, selectedId, on
                       }}
                     >
                       <div onPointerDown={e => beginDrag(e, entry, 'top')} style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 6, cursor: 'ns-resize' }} />
+                      {/* Workstream */}
                       <div style={{ fontSize: 10, fontWeight: 600, color: '#111', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                         {node ? node.name : 'Draft'}
                       </div>
-                      {height > 26 && (
-                        <div style={{ fontSize: 9, color: '#666', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                          {formatClock(timeStr(start))}
+                      {/* Project */}
+                      {project && (
+                        <div style={{ fontSize: 9, color: '#444', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          {project.name}
+                        </div>
+                      )}
+                      {/* Time */}
+                      <div style={{ fontSize: 9, color: '#666', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {formatClock(timeStr(start))}
+                      </div>
+                      {/* People */}
+                      {peopleFor(entry) && (
+                        <div style={{ fontSize: 9, color: '#666', fontStyle: 'italic', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          {peopleFor(entry)}
                         </div>
                       )}
                       <div onPointerDown={e => beginDrag(e, entry, 'bottom')} style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 6, cursor: 'ns-resize' }} />
