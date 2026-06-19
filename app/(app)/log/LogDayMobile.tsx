@@ -3,24 +3,24 @@
 import { PageShell } from '@/components/ui'
 import Timeline from './Timeline'
 import EntryEditor from './EntryEditor'
-import { DateHeader, FinishBar, addBtn } from './LogParts'
+import { DateHeader, addBtn } from './LogParts'
 import { LogDayState } from './useLogDay'
 
 export default function LogDayMobile({ s }: { s: LogDayState }) {
+  const dayEntries = s.entriesForDay(s.date)
+
   return (
     <PageShell>
       <DateHeader s={s} />
 
       <Timeline
-        entries={s.entries}
+        entries={dayEntries}
         nodes={s.allNodes}
         selectedId={s.selectedId}
         onSelect={s.setSelectedId}
-        onCommitTimes={s.commitTimes}
+        onCommitTimes={(id, startMin, endMin) => s.commitDrag(id, startMin, endMin, s.date)}
       />
-      <button onClick={s.addEntry} style={addBtn}>+ Add entry</button>
-
-      <FinishBar s={s} />
+      <button onClick={() => s.addEntry(s.date)} style={addBtn}>+ Add entry</button>
 
       {/* Slide-up sheet editor */}
       {s.selected && (

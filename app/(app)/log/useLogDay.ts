@@ -1,23 +1,22 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { timeToMinutes, minutesToTime } from '@/lib/time'
+import { timeToMinutes, minutesToTime, shiftDate, weekStartOf, todayStr } from '@/lib/time'
 import { Node, Contact, Entry } from './types'
 
 export type LogDayProps = {
   date: string
+  weekStart: string
   settings: any
   nodes: Node[]
   contacts: Contact[]
   initialEntries: any[]
   initialEntryContacts: { entry_id: string; contact_id: string }[]
-  loggedDay: any
 }
 
-// All log-day state and actions live here, shared by the desktop and mobile views.
-export function useLogDay({ date, settings, nodes, contacts, initialEntries, initialEntryContacts, loggedDay }: LogDayProps) {
+export function useLogDay({ date, weekStart, settings, nodes, contacts, initialEntries, initialEntryContacts }: LogDayProps) {
   const supabase = createClient()
   const router = useRouter()
 
@@ -29,22 +28,28 @@ export function useLogDay({ date, settings, nodes, contacts, initialEntries, ini
   )
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [allNodes, setAllNodes] = useState<Node[]>(nodes)
-  const [finished, setFinished] = useState<boolean>(loggedDay?.status === 'finished')
 
   const expectedMinutes = settings?.expected_workday_minutes ?? 480
-  const totalLogged = useMemo(() => entries.reduce((sum, e) => sum + e.duration_minutes, 0), [entries])
   const selected = entries.find(e => e.id === selectedId) ?? null
 
-  async function addEntry() {
-    const sorted = [...entries].sort((a, b) => timeToMinutes(a.end_time) - timeToMinutes(b.end_time))
-    const lastEnd = sorted.length ? timeToMinutes(sorted[sorted.length - 1].end_time) : 9 * 60
+  // The 7 dates of the visible week
+  const weekDates = Array.from({ length: 7 }, (_, i) => shiftDate(weekStart, i))
+
+  function entriesForDay(d: string) {
+    return entries.filter(e => e.entry_date === d)
+  }
+
+  // Add a block to a given day, starting after that day's last block
+  async function addEntry(targetDate: string) {
+    const dayEntries = entriesForDay(targetDate).sort((a, b) => timeToMinutes(a.end_time) - timeToMinutes(b.end_time))
+    const lastEnd = dayEntries.length ? timeToMinutes(dayEntries[dayEntries.length - 1].end_time) : 9 * 60
     const start = Math.min(lastEnd, 24 * 60 - 30)
     const end = Math.min(start + 30, 24 * 60)
 
     const { data: { user } } = await supabase.auth.getUser()
     const { data, error } = await supabase.from('time_entries').insert({
       user_id: user!.id,
-      entry_date: date,
+      entry_date: targetDate,
       start_time: minutesToTime(start),
       end_time: minutesToTime(end),
       duration_minutes: end - start,
@@ -84,8 +89,9 @@ export function useLogDay({ date, settings, nodes, contacts, initialEntries, ini
     }
   }
 
-  function commitTimes(id: string, startMin: number, endMin: number) {
-    updateEntry(id, { start_time: minutesToTime(startMin), end_time: minutesToTime(endMin) })
+  // Commit a drag: new time and possibly a new day
+  function commitDrag(id: string, startMin: number, endMin: number, newDate: string) {
+    updateEntry(id, { start_time: minutesToTime(startMin), end_time: minutesToTime(endMin), entry_date: newDate })
   }
 
   async function deleteEntry(id: string) {
@@ -106,32 +112,9 @@ export function useLogDay({ date, settings, nodes, contacts, initialEntries, ini
     }
   }
 
-  const gapsAndDrafts = useMemo(() => {
-    const drafts = entries.filter(e => !e.hierarchy_node_id).length
-    const sorted = [...entries].sort((a, b) => timeToMinutes(a.start_time) - timeToMinutes(b.start_time))
-    let gaps = 0
-    for (let i = 1; i < sorted.length; i++) {
-      if (timeToMinutes(sorted[i].start_time) > timeToMinutes(sorted[i - 1].end_time)) gaps++
-    }
-    return { drafts, gaps }
-  }, [entries])
-
-  async function finishDay() {
-    const { data: { user } } = await supabase.auth.getUser()
-    await supabase.from('logged_days').upsert(
-      { user_id: user!.id, day_date: date, status: 'finished', finished_at: new Date().toISOString() },
-      { onConflict: 'user_id,day_date' }
-    )
-    setFinished(true)
-  }
-
-  async function reopenDay() {
-    const { data: { user } } = await supabase.auth.getUser()
-    await supabase.from('logged_days').upsert(
-      { user_id: user!.id, day_date: date, status: 'in_progress', finished_at: null },
-      { onConflict: 'user_id,day_date' }
-    )
-    setFinished(false)
+  function goToWeek(newWeekStart: string) {
+    setSelectedId(null)
+    router.push(`/log?date=${newWeekStart}`)
   }
 
   function goToDate(newDate: string) {
@@ -139,12 +122,14 @@ export function useLogDay({ date, settings, nodes, contacts, initialEntries, ini
     router.push(`/log?date=${newDate}`)
   }
 
+  // Which day a desktop "+ Add entry" should target: today if it's in view, else the week start
+  const defaultDay = weekDates.includes(todayStr()) ? todayStr() : weekStart
+
   return {
-    date, contacts, expectedMinutes, totalLogged,
-    entries, selectedId, setSelectedId, allNodes, setAllNodes,
-    selected, finished, gapsAndDrafts,
-    addEntry, updateEntry, commitTimes, deleteEntry, toggleContact,
-    finishDay, reopenDay, goToDate,
+    date, weekStart, weekDates, defaultDay, contacts, expectedMinutes,
+    entries, entriesForDay, selectedId, setSelectedId, allNodes, setAllNodes, selected,
+    addEntry, updateEntry, commitDrag, deleteEntry, toggleContact,
+    goToWeek, goToDate,
   }
 }
 

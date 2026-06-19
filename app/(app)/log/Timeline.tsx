@@ -3,6 +3,7 @@
 import { useRef, useEffect, useState } from 'react'
 import { PX_PER_MIN, DAY_MINUTES, timeToMinutes, formatClock } from '@/lib/time'
 import { Node, Entry } from './types'
+import { isComplete } from './status'
 
 type DragState = {
   id: string
@@ -149,8 +150,8 @@ export default function Timeline({ entries, nodes, selectedId, onSelect, onCommi
           const height = Math.max(18, (end - start) * PX_PER_MIN)
           const node = nodeFor(entry.hierarchy_node_id)
           const project = projectFor(node)
-          const complete = !!node
-          const color = node?.color ?? '#d97706'
+          const complete = isComplete(entry)
+          const color = complete ? (node?.color ?? '#16a34a') : '#d97706'
           const selected = entry.id === selectedId
           const dragging = drag?.id === entry.id
 
@@ -177,7 +178,7 @@ export default function Timeline({ entries, nodes, selectedId, onSelect, onCommi
                 style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 8, cursor: 'ns-resize' }}
               />
               <div style={{ fontSize: 11, fontWeight: 600, color: '#111', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                {complete ? node!.name : 'Draft — pick a workstream'}
+                {node ? node.name : 'Draft — pick a workstream'}
               </div>
               {height > 32 && (
                 <div style={{ fontSize: 10, color: '#666', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>

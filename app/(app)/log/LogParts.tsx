@@ -1,10 +1,10 @@
 'use client'
 
-import { PrimaryButton, SecondaryButton } from '@/components/ui'
-import { formatDateLabel, shiftDate, formatDuration } from '@/lib/time'
+import { formatDateLabel, shiftDate, formatDuration, timeToMinutes } from '@/lib/time'
 import { LogDayState } from './useLogDay'
 
 export function DateHeader({ s }: { s: LogDayState }) {
+  const dayTotal = s.entriesForDay(s.date).reduce((sum, e) => sum + e.duration_minutes, 0)
   return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
       <button onClick={() => s.goToDate(shiftDate(s.date, -1))} style={navArrow}>‹</button>
@@ -13,38 +13,10 @@ export function DateHeader({ s }: { s: LogDayState }) {
           {formatDateLabel(s.date)}
         </h1>
         <p style={{ fontSize: 12, color: '#999' }}>
-          {formatDuration(s.totalLogged)} logged of {formatDuration(s.expectedMinutes)}
+          {formatDuration(dayTotal)} logged of {formatDuration(s.expectedMinutes)}
         </p>
       </div>
       <button onClick={() => s.goToDate(shiftDate(s.date, 1))} style={navArrow}>›</button>
-    </div>
-  )
-}
-
-export function FinishBar({ s }: { s: LogDayState }) {
-  const { gaps, drafts } = s.gapsAndDrafts
-  return (
-    <div style={{ marginTop: 20 }}>
-      {s.finished ? (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
-          <span style={{ fontSize: 13, color: '#16a34a', fontWeight: 600 }}>✓ Day finished</span>
-          <SecondaryButton onClick={s.reopenDay}>Reopen</SecondaryButton>
-        </div>
-      ) : (
-        <div>
-          {(gaps > 0 || drafts > 0) && (
-            <p style={{ fontSize: 12, color: '#d97706', marginBottom: 8, textAlign: 'center' }}>
-              {[
-                gaps > 0 ? `${gaps} gap${gaps > 1 ? 's' : ''}` : null,
-                drafts > 0 ? `${drafts} draft${drafts > 1 ? 's' : ''}` : null,
-              ].filter(Boolean).join(' · ')} — you can still finish.
-            </p>
-          )}
-          <PrimaryButton onClick={s.finishDay} style={{ width: '100%' }}>
-            Finish logging day
-          </PrimaryButton>
-        </div>
-      )}
     </div>
   )
 }

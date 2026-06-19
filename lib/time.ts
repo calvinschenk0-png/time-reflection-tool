@@ -51,3 +51,26 @@ export function shiftDate(dateStr: string, days: number): string {
 export function todayStr(): string {
   return new Date().toISOString().slice(0, 10)
 }
+
+// Sunday of the week containing dateStr, as "YYYY-MM-DD"
+export function weekStartOf(dateStr: string): string {
+  const d = new Date(dateStr + 'T00:00:00')
+  d.setDate(d.getDate() - d.getDay())
+  return d.toISOString().slice(0, 10)
+}
+
+// "2026-06-19" -> "Fri 19"
+export function shortDayLabel(dateStr: string): { dow: string; day: number } {
+  const d = new Date(dateStr + 'T00:00:00')
+  return { dow: d.toLocaleDateString('en-GB', { weekday: 'short' }), day: d.getDate() }
+}
+
+// "Jun 15 – 21"
+export function weekRangeLabel(weekStart: string): string {
+  const start = new Date(weekStart + 'T00:00:00')
+  const end = new Date(weekStart + 'T00:00:00')
+  end.setDate(end.getDate() + 6)
+  const m = (d: Date) => d.toLocaleDateString('en-GB', { month: 'short' })
+  if (m(start) === m(end)) return `${m(start)} ${start.getDate()} – ${end.getDate()}`
+  return `${m(start)} ${start.getDate()} – ${m(end)} ${end.getDate()}`
+}
