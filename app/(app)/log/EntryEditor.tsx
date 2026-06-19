@@ -21,37 +21,17 @@ export default function EntryEditor({ entry, nodes, contacts, onUpdate, onDelete
   const end = timeToMinutes(entry.end_time)
   const invalid = end <= start
 
-  // Round any entered time to the nearest 15 minutes
-  function round15(hhmm: string): string {
-    const [h, m] = hhmm.split(':').map(Number)
-    let total = Math.round((h * 60 + m) / 15) * 15
-    total = Math.max(0, Math.min(24 * 60, total))
-    return `${String(Math.floor(total / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}:00`
-  }
-
   return (
     <Card>
       {/* Times */}
       <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
         <div style={{ flex: 1 }}>
           <label style={labelStyle}>Start</label>
-          <input
-            type="time"
-            step={900}
-            value={entry.start_time.slice(0, 5)}
-            onChange={e => e.target.value && onUpdate(entry.id, { start_time: round15(e.target.value) })}
-            style={inputStyle}
-          />
+          <TimeSelect value={entry.start_time} onChange={v => onUpdate(entry.id, { start_time: v })} />
         </div>
         <div style={{ flex: 1 }}>
           <label style={labelStyle}>End</label>
-          <input
-            type="time"
-            step={900}
-            value={entry.end_time.slice(0, 5)}
-            onChange={e => e.target.value && onUpdate(entry.id, { end_time: round15(e.target.value) })}
-            style={inputStyle}
-          />
+          <TimeSelect value={entry.end_time} onChange={v => onUpdate(entry.id, { end_time: v })} />
         </div>
       </div>
       <p style={{ fontSize: 12, color: invalid ? '#dc2626' : '#999', marginTop: -8, marginBottom: 16 }}>
@@ -112,6 +92,40 @@ export default function EntryEditor({ entry, nodes, contacts, onUpdate, onDelete
       </div>
     </Card>
   )
+}
+
+// Three dropdowns (hour / minute / AM-PM) restricted to 15-minute steps.
+function TimeSelect({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const [h24, m] = value.split(':').map(Number)
+  const ampm = h24 < 12 ? 'AM' : 'PM'
+  let h12 = h24 % 12
+  if (h12 === 0) h12 = 12
+
+  function emit(nh12: number, nm: number, nap: string) {
+    let h = nh12 % 12
+    if (nap === 'PM') h += 12
+    onChange(`${String(h).padStart(2, '0')}:${String(nm).padStart(2, '0')}:00`)
+  }
+
+  return (
+    <div style={{ display: 'flex', gap: 4 }}>
+      <select value={h12} onChange={e => emit(Number(e.target.value), m, ampm)} style={selStyle}>
+        {Array.from({ length: 12 }, (_, i) => i + 1).map(n => <option key={n} value={n}>{n}</option>)}
+      </select>
+      <select value={m} onChange={e => emit(h12, Number(e.target.value), ampm)} style={selStyle}>
+        {[0, 15, 30, 45].map(n => <option key={n} value={n}>{String(n).padStart(2, '0')}</option>)}
+      </select>
+      <select value={ampm} onChange={e => emit(h12, m, e.target.value)} style={selStyle}>
+        <option>AM</option>
+        <option>PM</option>
+      </select>
+    </div>
+  )
+}
+
+const selStyle: React.CSSProperties = {
+  flex: 1, border: '1px solid #e4e4e7', borderRadius: 10, padding: '9px 6px',
+  fontSize: 13, color: '#111', background: '#fff', outline: 'none', cursor: 'pointer',
 }
 
 const labelStyle: React.CSSProperties = {
