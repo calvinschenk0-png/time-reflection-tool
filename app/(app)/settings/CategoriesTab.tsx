@@ -73,83 +73,101 @@ export default function CategoriesTab({ initialNodes }: { initialNodes: Node[] }
         </Card>
       )}
 
-      {projects.map(project => (
-        <Card key={project.id}>
-          {/* Project header */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-            <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 15, fontWeight: 600, color: '#111', flex: 1 }}>
-              {project.name}
-            </span>
-            <DangerButton onClick={() => archive(project.id)}>Archive</DangerButton>
-          </div>
+      {projects.map(project => {
+        const addingHere = adding?.level === 'workstream' && adding.parentId === project.id
+        return (
+          <Card key={project.id}>
+            {/* Project header */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+              <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 15, fontWeight: 600, color: '#111', flex: 1 }}>
+                {project.name}
+              </span>
+              <DangerButton onClick={() => archive(project.id)}>Archive</DangerButton>
+            </div>
 
-          {/* Workstreams */}
-          <div style={{ paddingLeft: 20 }}>
-            {workstreamsFor(project.id).map((ws, i, arr) => (
-              <div key={ws.id}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 0' }}>
-                  <ColorDot color={ws.color ?? '#ccc'} />
-                  <span style={{ fontSize: 13, fontWeight: 500, color: '#111', flex: 1 }}>{ws.name}</span>
-                  <DangerButton onClick={() => archive(ws.id)}>Archive</DangerButton>
+            {/* Workstreams */}
+            <div style={{ paddingLeft: 20 }}>
+              {workstreamsFor(project.id).map((ws, i, arr) => (
+                <div key={ws.id}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 0' }}>
+                    <ColorDot color={ws.color ?? '#ccc'} />
+                    <span style={{ fontSize: 13, fontWeight: 500, color: '#111', flex: 1 }}>{ws.name}</span>
+                    <DangerButton onClick={() => archive(ws.id)}>Archive</DangerButton>
+                  </div>
+                  {i < arr.length - 1 && <Divider />}
                 </div>
-                {i < arr.length - 1 && <Divider />}
-              </div>
-            ))}
+              ))}
 
-            <button
-              onClick={() => setAdding({ level: 'workstream', parentId: project.id })}
-              style={{ fontSize: 12, color: '#2563eb', background: 'none', border: 'none', cursor: 'pointer', padding: '8px 0', fontWeight: 500 }}
-            >
-              + Add workstream
-            </button>
-          </div>
-        </Card>
-      ))}
+              {addingHere ? (
+                /* Inline workstream form — nested inside the project card, tinted by selected color */
+                <div style={{
+                  marginTop: 12,
+                  background: form.color + '14',
+                  border: `1px solid ${form.color}40`,
+                  borderRadius: 12,
+                  padding: 16,
+                }}>
+                  <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 600, color: '#111', marginBottom: 12 }}>
+                    New workstream
+                  </p>
+                  <Input
+                    label="Workstream name"
+                    value={form.name}
+                    onChange={v => setForm(f => ({ ...f, name: v }))}
+                    placeholder="e.g. Executive PMO, Training…"
+                  />
+                  <div style={{ marginBottom: 16 }}>
+                    <label style={{ display: 'block', fontSize: 12, color: '#666', marginBottom: 8, fontWeight: 500 }}>
+                      Color (shown on the calendar)
+                    </label>
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      {COLORS.map(c => (
+                        <button
+                          key={c}
+                          onClick={() => setForm(f => ({ ...f, color: c }))}
+                          style={{
+                            width: 26, height: 26, borderRadius: 6, background: c,
+                            border: 'none', cursor: 'pointer',
+                            outline: form.color === c ? `3px solid ${c}` : 'none',
+                            outlineOffset: 2,
+                          }}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <PrimaryButton onClick={save} disabled={saving || !form.name.trim()}>
+                      {saving ? 'Saving…' : 'Save'}
+                    </PrimaryButton>
+                    <SecondaryButton onClick={cancel}>Cancel</SecondaryButton>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  onClick={() => setAdding({ level: 'workstream', parentId: project.id })}
+                  style={{ fontSize: 12, color: '#2563eb', background: 'none', border: 'none', cursor: 'pointer', padding: '8px 0', fontWeight: 500 }}
+                >
+                  + Add workstream
+                </button>
+              )}
+            </div>
+          </Card>
+        )
+      })}
 
-      {/* Add form */}
-      {adding && (
+      {/* New project form — its own card */}
+      {adding?.level === 'project' && (
         <Card style={{ background: '#eef3ff' }}>
-          <SectionHeading>
-            {adding.level === 'project'
-              ? 'New project'
-              : `New workstream under "${nodes.find(n => n.id === adding.parentId)?.name}"`}
-          </SectionHeading>
-
-          {adding.level === 'project' && (
-            <p style={{ color: '#666', fontSize: 12, marginBottom: 12, lineHeight: 1.5 }}>
-              A project is the highest level of work — your broadest, top-level category. Think of a client engagement, an internal initiative, or a standing responsibility.
-            </p>
-          )}
-
+          <SectionHeading>New project</SectionHeading>
+          <p style={{ color: '#666', fontSize: 12, marginBottom: 12, lineHeight: 1.5 }}>
+            A project is the highest level of work — your broadest, top-level category. Think of a client engagement, an internal initiative, or a standing responsibility.
+          </p>
           <Input
-            label={adding.level === 'project' ? 'Project name' : 'Workstream name'}
+            label="Project name"
             value={form.name}
             onChange={v => setForm(f => ({ ...f, name: v }))}
-            placeholder={adding.level === 'project' ? 'e.g. Client A, Internal Ops…' : 'e.g. Executive PMO, Training…'}
+            placeholder="e.g. Client A, Internal Ops…"
           />
-
-          {adding.level === 'workstream' && (
-            <div style={{ marginBottom: 16 }}>
-              <label style={{ display: 'block', fontSize: 12, color: '#666', marginBottom: 8, fontWeight: 500 }}>
-                Color (shown on the calendar)
-              </label>
-              <div style={{ display: 'flex', gap: 8 }}>
-                {COLORS.map(c => (
-                  <button
-                    key={c}
-                    onClick={() => setForm(f => ({ ...f, color: c }))}
-                    style={{
-                      width: 26, height: 26, borderRadius: 6, background: c,
-                      border: 'none', cursor: 'pointer',
-                      outline: form.color === c ? `3px solid ${c}` : 'none',
-                      outlineOffset: 2,
-                    }}
-                  />
-                ))}
-              </div>
-            </div>
-          )}
-
           <div style={{ display: 'flex', gap: 8 }}>
             <PrimaryButton onClick={save} disabled={saving || !form.name.trim()}>
               {saving ? 'Saving…' : 'Save'}
@@ -159,7 +177,7 @@ export default function CategoriesTab({ initialNodes }: { initialNodes: Node[] }
         </Card>
       )}
 
-      {!adding && projects.length > 0 && (
+      {adding?.level !== 'project' && projects.length > 0 && (
         <PrimaryButton onClick={() => setAdding({ level: 'project', parentId: null })} style={{ width: '100%' }}>
           + Add project
         </PrimaryButton>
