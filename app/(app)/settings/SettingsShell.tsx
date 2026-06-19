@@ -3,17 +3,15 @@
 import { useState } from 'react'
 import { PageShell } from '@/components/ui'
 import GeneralTab from './GeneralTab'
-import EngagementsTab from './EngagementsTab'
-import ActivitiesTab from './ActivitiesTab'
+import CategoriesTab from './CategoriesTab'
 import ContactsTab from './ContactsTab'
 
-const TABS = ['General', 'Engagements', 'Activities', 'Contacts'] as const
+const TABS = ['General', 'Categories', 'Contacts'] as const
 type Tab = typeof TABS[number]
 
-export default function SettingsShell({ initialSettings, initialEngagements, initialActivities, initialContacts }: {
+export default function SettingsShell({ initialSettings, initialNodes, initialContacts }: {
   initialSettings: any
-  initialEngagements: any[]
-  initialActivities: any[]
+  initialNodes: any[]
   initialContacts: any[]
 }) {
   const [tab, setTab] = useState<Tab>('General')
@@ -49,10 +47,9 @@ export default function SettingsShell({ initialSettings, initialEngagements, ini
         ))}
       </div>
 
-      {tab === 'General'      && <GeneralTab     initialSettings={initialSettings} />}
-      {tab === 'Engagements'  && <EngagementsTab initialEngagements={initialEngagements} />}
-      {tab === 'Activities'   && <ActivitiesTab  initialActivities={initialActivities} />}
-      {tab === 'Contacts'     && <ContactsTab    initialContacts={initialContacts} />}
+      {tab === 'General'    && <GeneralTab    initialSettings={initialSettings} />}
+      {tab === 'Categories' && <CategoriesTab initialNodes={initialNodes} />}
+      {tab === 'Contacts'   && <ContactsTab   initialContacts={initialContacts} />}
     </PageShell>
   )
 }
