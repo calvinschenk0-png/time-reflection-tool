@@ -21,8 +21,9 @@ export default function LogDayDesktop({ s }: { s: LogDayState }) {
         <button onClick={() => s.goToDate(todayStr())} style={todayBtn}>Today</button>
       </div>
 
-      {/* 80 / 20 split, filling the rest of the viewport height */}
-      <div style={{ flex: 1, minHeight: 0, display: 'grid', gridTemplateColumns: '4fr 1fr', gap: 16 }}>
+      {/* 80 / 20 split, filling the rest of the viewport height.
+          minmax(0,…) keeps the ratio fixed regardless of panel content. */}
+      <div style={{ flex: 1, minHeight: 0, display: 'grid', gridTemplateColumns: 'minmax(0, 4fr) minmax(0, 1fr)', gap: 16 }}>
         {/* Calendar */}
         <WeekCalendar
           weekDates={s.weekDates}
