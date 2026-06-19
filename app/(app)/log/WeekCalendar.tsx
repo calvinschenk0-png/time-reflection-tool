@@ -227,6 +227,7 @@ export default function WeekCalendar({ weekDates, entries, nodes, contacts, sele
                   const end = effEnd(entry)
                   const height = Math.max(16, (end - start) * PXPM)
                   const node = nodeFor(entry.hierarchy_node_id)
+                  const project = projectFor(node)
                   const complete = isComplete(entry)
                   const color = complete ? (node?.color ?? '#16a34a') : '#d97706'
                   const selected = entry.id === selectedId
