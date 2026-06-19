@@ -1,0 +1,53 @@
+// Pixels per minute on the timeline (84px per hour).
+export const PX_PER_MIN = 1.4
+export const DAY_MINUTES = 24 * 60
+
+// "09:30:00" or "09:30" -> minutes from midnight (570)
+export function timeToMinutes(t: string): number {
+  const [h, m] = t.split(':').map(Number)
+  return h * 60 + m
+}
+
+// 570 -> "09:30"
+export function minutesToTime(min: number): string {
+  const clamped = Math.max(0, Math.min(DAY_MINUTES, min))
+  const h = Math.floor(clamped / 60)
+  const m = clamped % 60
+  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
+}
+
+// "09:30:00" -> "9:30 AM"
+export function formatClock(t: string): string {
+  let [h, m] = t.split(':').map(Number)
+  const ap = h < 12 ? 'AM' : 'PM'
+  let hh = h % 12
+  if (hh === 0) hh = 12
+  return `${hh}:${String(m).padStart(2, '0')} ${ap}`
+}
+
+// minutes -> "1h 30m" / "45m"
+export function formatDuration(min: number): string {
+  if (min <= 0) return '0m'
+  const h = Math.floor(min / 60)
+  const m = min % 60
+  if (h === 0) return `${m}m`
+  if (m === 0) return `${h}h`
+  return `${h}h ${m}m`
+}
+
+// "2026-06-18" formatted as "Thursday, 18 June"
+export function formatDateLabel(dateStr: string): string {
+  const d = new Date(dateStr + 'T00:00:00')
+  return d.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })
+}
+
+// Shift a "YYYY-MM-DD" string by n days
+export function shiftDate(dateStr: string, days: number): string {
+  const d = new Date(dateStr + 'T00:00:00')
+  d.setDate(d.getDate() + days)
+  return d.toISOString().slice(0, 10)
+}
+
+export function todayStr(): string {
+  return new Date().toISOString().slice(0, 10)
+}
