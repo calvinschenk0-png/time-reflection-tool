@@ -22,7 +22,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <NavBar userEmail={user.email ?? ''} />
-      <main className="flex-1 flex flex-col">
+      <main className="flex-1 flex flex-col" style={{ width: '100%' }}>
         {children}
       </main>
     </div>

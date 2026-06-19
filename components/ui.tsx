@@ -156,7 +156,7 @@ export function Divider() {
 
 export function PageShell({ children }: { children: React.ReactNode }) {
   return (
-    <div style={{ maxWidth: 560, margin: '0 auto', padding: '28px 24px 80px' }}>
+    <div style={{ width: '100%', maxWidth: 560, margin: '0 auto', padding: '28px 24px 80px' }}>
       {children}
     </div>
   )
