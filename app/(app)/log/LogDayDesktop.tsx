@@ -59,10 +59,11 @@ export default function LogDayDesktop({ s }: { s: LogDayState }) {
         </div>
       </div>
 
-      {/* Coverage to date */}
+      {/* Coverage to date — week % in week view, month % in month view */}
       <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginBottom: 16, flexShrink: 0 }}>
-        {!isMonth && <CoverageStat label="This week logged" pct={weekPct} />}
-        <CoverageStat label={isMonth ? `${monthLabel(s.date)} logged` : 'This month logged'} pct={s.monthPct} />
+        {isMonth
+          ? <CoverageStat label={`${monthLabel(s.date)} logged`} pct={s.monthPct} />
+          : <CoverageStat label="This week logged" pct={weekPct} />}
       </div>
 
       {/* Calendar + attribute panel */}
