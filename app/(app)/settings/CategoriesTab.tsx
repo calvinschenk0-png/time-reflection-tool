@@ -107,8 +107,11 @@ export default function CategoriesTab({ initialNodes }: { initialNodes: Node[] }
                   borderRadius: 12,
                   padding: 16,
                 }}>
-                  <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 600, color: '#111', marginBottom: 12 }}>
+                  <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 600, color: '#111', marginBottom: 6 }}>
                     New workstream
+                  </p>
+                  <p style={{ color: '#666', fontSize: 12, marginBottom: 12, lineHeight: 1.5 }}>
+                    Workstreams are sub-categories within a project. Use them to track how much time you spend on the different parts of a larger project.
                   </p>
                   <Input
                     label="Workstream name"
