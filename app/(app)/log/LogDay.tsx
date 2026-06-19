@@ -175,6 +175,9 @@ export default function LogDay({ date, settings, nodes, contacts, initialEntries
             nodes={allNodes}
             selectedId={selectedId}
             onSelect={setSelectedId}
+            onCommitTimes={(id, startMin, endMin) =>
+              updateEntry(id, { start_time: minutesToTime(startMin), end_time: minutesToTime(endMin) })
+            }
           />
           <button onClick={addEntry} style={addBtn}>+ Add entry</button>
         </div>
