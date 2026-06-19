@@ -3,10 +3,16 @@
 import WeekCalendar from './WeekCalendar'
 import EntryEditor from './EntryEditor'
 import { PrimaryButton } from '@/components/ui'
-import { weekRangeLabel, shiftDate, todayStr } from '@/lib/time'
+import { weekRangeLabel, shiftDate, todayStr, isWeekday } from '@/lib/time'
 import { LogDayState } from './useLogDay'
 
 export default function LogDayDesktop({ s }: { s: LogDayState }) {
+  // Week-to-date coverage: weekdays from week start through today, vs logged so far
+  const today = todayStr()
+  const expectedToDate = s.weekDates.filter(d => d <= today && isWeekday(d)).length * s.expectedMinutes
+  const loggedToDate = s.entries.filter(e => e.entry_date <= today).reduce((sum, e) => sum + e.duration_minutes, 0)
+  const weekPct = expectedToDate > 0 ? Math.min(100, Math.round((loggedToDate / expectedToDate) * 100)) : null
+
   return (
     <div style={{ height: 'calc(100vh - 52px)', display: 'flex', flexDirection: 'column', padding: '24px', boxSizing: 'border-box' }}>
       {/* Week header */}
@@ -21,6 +27,12 @@ export default function LogDayDesktop({ s }: { s: LogDayState }) {
         <button onClick={() => s.goToDate(todayStr())} style={todayBtn}>Today</button>
       </div>
 
+      {/* Coverage to date */}
+      <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginBottom: 16, flexShrink: 0 }}>
+        <CoverageStat label="This week logged" pct={weekPct} />
+        <CoverageStat label="This month logged" pct={s.monthPct} />
+      </div>
+
       {/* 80 / 20 split, filling the rest of the viewport height.
           minmax(0,…) keeps the ratio fixed regardless of panel content. */}
       <div style={{ flex: 1, minHeight: 0, display: 'grid', gridTemplateColumns: 'minmax(0, 4fr) minmax(0, 1fr)', gap: 16 }}>
@@ -30,6 +42,7 @@ export default function LogDayDesktop({ s }: { s: LogDayState }) {
           entries={s.entries}
           nodes={s.allNodes}
           contacts={s.contacts}
+          expectedMinutes={s.expectedMinutes}
           selectedId={s.selectedId}
           onSelect={s.setSelectedId}
           onCommitDrag={s.commitDrag}
@@ -63,6 +76,23 @@ export default function LogDayDesktop({ s }: { s: LogDayState }) {
           <PrimaryButton onClick={() => s.addEntry(s.defaultDay)} style={{ width: '100%', marginTop: 12, flexShrink: 0 }}>
             + Add entry
           </PrimaryButton>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function CoverageStat({ label, pct }: { label: string; pct: number | null }) {
+  const color = pct === null ? '#999' : pct >= 95 ? '#16a34a' : pct >= 50 ? '#2563eb' : '#d97706'
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 12, background: '#f4f4f5', borderRadius: 12, padding: '8px 16px', minWidth: 220 }}>
+      <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 22, fontWeight: 700, color }}>
+        {pct === null ? '—' : `${pct}%`}
+      </div>
+      <div style={{ flex: 1 }}>
+        <div style={{ fontSize: 11, color: '#666', fontWeight: 500, marginBottom: 4 }}>{label}</div>
+        <div style={{ height: 5, background: '#e9e9eb', borderRadius: 99, overflow: 'hidden' }}>
+          <div style={{ width: `${pct ?? 0}%`, height: 5, background: color }} />
         </div>
       </div>
     </div>

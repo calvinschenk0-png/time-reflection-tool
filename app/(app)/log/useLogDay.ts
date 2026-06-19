@@ -9,6 +9,7 @@ import { Node, Contact, Entry } from './types'
 export type LogDayProps = {
   date: string
   weekStart: string
+  monthPct: number | null
   settings: any
   nodes: Node[]
   contacts: Contact[]
@@ -16,7 +17,7 @@ export type LogDayProps = {
   initialEntryContacts: { entry_id: string; contact_id: string }[]
 }
 
-export function useLogDay({ date, weekStart, settings, nodes, contacts, initialEntries, initialEntryContacts }: LogDayProps) {
+export function useLogDay({ date, weekStart, monthPct, settings, nodes, contacts, initialEntries, initialEntryContacts }: LogDayProps) {
   const supabase = createClient()
   const router = useRouter()
 
@@ -131,7 +132,7 @@ export function useLogDay({ date, weekStart, settings, nodes, contacts, initialE
   const defaultDay = weekDates.includes(todayStr()) ? todayStr() : weekStart
 
   return {
-    date, weekStart, weekDates, defaultDay, expectedMinutes,
+    date, weekStart, weekDates, defaultDay, expectedMinutes, monthPct,
     contacts: allContacts, setAllContacts,
     entries, entriesForDay, selectedId, setSelectedId, allNodes, setAllNodes, selected,
     addEntry, createEntry, updateEntry, commitDrag, deleteEntry, toggleContact,

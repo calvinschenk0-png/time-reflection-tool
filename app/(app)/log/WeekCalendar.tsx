@@ -22,11 +22,12 @@ type DragState = {
   moved: boolean
 }
 
-export default function WeekCalendar({ weekDates, entries, nodes, contacts, selectedId, onSelect, onCommitDrag, onCreateEntry, onDeleteEntry }: {
+export default function WeekCalendar({ weekDates, entries, nodes, contacts, expectedMinutes, selectedId, onSelect, onCommitDrag, onCreateEntry, onDeleteEntry }: {
   weekDates: string[]
   entries: Entry[]
   nodes: Node[]
   contacts: Contact[]
+  expectedMinutes: number
   selectedId: string | null
   onSelect: (id: string) => void
   onCommitDrag: (id: string, startMin: number, endMin: number, newDate: string) => void
@@ -170,15 +171,23 @@ export default function WeekCalendar({ weekDates, entries, nodes, contacts, sele
         {weekDates.map(d => {
           const { dow, day } = shortDayLabel(d)
           const isToday = d === todayStr()
+          const dayLogged = entries.filter(e => e.entry_date === d).reduce((s, e) => s + e.duration_minutes, 0)
+          const pct = expectedMinutes > 0 ? Math.min(100, Math.round((dayLogged / expectedMinutes) * 100)) : 0
+          const barColor = pct >= 95 ? '#16a34a' : pct >= 50 ? '#2563eb' : pct > 0 ? '#d97706' : '#e4e4e7'
           return (
-            <div key={d} style={{ flex: 1, textAlign: 'center', padding: '8px 0', borderLeft: '1px solid #e7e7e9' }}>
+            <div key={d} style={{ flex: 1, textAlign: 'center', padding: '8px 6px', borderLeft: '1px solid #e7e7e9' }}>
               <div style={{ fontSize: 10, color: isToday ? '#2563eb' : '#999', fontWeight: 600, letterSpacing: '0.04em' }}>{dow.toUpperCase()}</div>
               <div style={{
                 fontFamily: "'Space Grotesk', sans-serif", fontSize: 15, fontWeight: 700,
                 color: isToday ? '#fff' : '#333',
                 background: isToday ? '#2563eb' : 'transparent',
-                width: 24, height: 24, lineHeight: '24px', borderRadius: 99, margin: '2px auto 0',
+                width: 24, height: 24, lineHeight: '24px', borderRadius: 99, margin: '2px auto 2px',
               }}>{day}</div>
+              {/* Coverage meter */}
+              <div style={{ height: 4, background: '#e9e9eb', borderRadius: 99, overflow: 'hidden', margin: '0 4px' }}>
+                <div style={{ width: `${pct}%`, height: 4, background: barColor }} />
+              </div>
+              <div style={{ fontSize: 8, color: '#bbb', marginTop: 1 }}>{pct}%</div>
             </div>
           )
         })}

@@ -52,6 +52,12 @@ export function todayStr(): string {
   return new Date().toISOString().slice(0, 10)
 }
 
+// True for Mon–Fri (excludes weekends from workday coverage math)
+export function isWeekday(dateStr: string): boolean {
+  const g = new Date(dateStr + 'T00:00:00').getDay()
+  return g !== 0 && g !== 6
+}
+
 // Sunday of the week containing dateStr, as "YYYY-MM-DD"
 export function weekStartOf(dateStr: string): string {
   const d = new Date(dateStr + 'T00:00:00')

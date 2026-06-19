@@ -31,10 +31,27 @@ export default async function LogPage({ searchParams }: { searchParams: Promise<
     entryContacts = data ?? []
   }
 
+  // Month-to-date coverage (current month, weekdays up to today)
+  const today = todayStr()
+  const monthStart = today.slice(0, 8) + '01'
+  const expected = settings?.expected_workday_minutes ?? 480
+  const { data: monthRows } = await supabase.from('time_entries')
+    .select('duration_minutes').eq('user_id', user!.id)
+    .gte('entry_date', monthStart).lte('entry_date', today)
+  const monthLogged = (monthRows ?? []).reduce((sum, r) => sum + (r.duration_minutes || 0), 0)
+  let monthWeekdays = 0
+  for (let d = new Date(monthStart + 'T00:00:00'); d <= new Date(today + 'T00:00:00'); d.setDate(d.getDate() + 1)) {
+    const g = d.getDay()
+    if (g !== 0 && g !== 6) monthWeekdays++
+  }
+  const monthExpected = monthWeekdays * expected
+  const monthPct = monthExpected > 0 ? Math.min(100, Math.round((monthLogged / monthExpected) * 100)) : null
+
   return (
     <LogDay
       date={date}
       weekStart={weekStart}
+      monthPct={monthPct}
       settings={settings}
       nodes={nodes ?? []}
       contacts={contacts ?? []}
