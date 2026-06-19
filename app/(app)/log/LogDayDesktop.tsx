@@ -8,9 +8,9 @@ import { LogDayState } from './useLogDay'
 
 export default function LogDayDesktop({ s }: { s: LogDayState }) {
   return (
-    <div style={{ width: '100%', padding: '24px', boxSizing: 'border-box' }}>
+    <div style={{ height: 'calc(100vh - 52px)', display: 'flex', flexDirection: 'column', padding: '24px', boxSizing: 'border-box' }}>
       {/* Week header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16, marginBottom: 16 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16, marginBottom: 16, flexShrink: 0 }}>
         <button onClick={() => s.goToWeek(shiftDate(s.weekStart, -7))} style={navArrow}>‹</button>
         <div style={{ textAlign: 'center', minWidth: 160 }}>
           <h1 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 18, fontWeight: 700, color: '#111' }}>
@@ -21,8 +21,8 @@ export default function LogDayDesktop({ s }: { s: LogDayState }) {
         <button onClick={() => s.goToDate(todayStr())} style={todayBtn}>Today</button>
       </div>
 
-      {/* 80 / 20 split */}
-      <div style={{ display: 'grid', gridTemplateColumns: '4fr 1fr', gap: 16, alignItems: 'start' }}>
+      {/* 80 / 20 split, filling the rest of the viewport height */}
+      <div style={{ flex: 1, minHeight: 0, display: 'grid', gridTemplateColumns: '4fr 1fr', gap: 16 }}>
         {/* Calendar */}
         <WeekCalendar
           weekDates={s.weekDates}
@@ -33,26 +33,29 @@ export default function LogDayDesktop({ s }: { s: LogDayState }) {
           onCommitDrag={s.commitDrag}
         />
 
-        {/* Attribute panel */}
-        <div>
-          {s.selected ? (
-            <EntryEditor
-              key={s.selected.id}
-              entry={s.selected}
-              nodes={s.allNodes}
-              contacts={s.contacts}
-              onUpdate={s.updateEntry}
-              onDelete={s.deleteEntry}
-              onToggleContact={s.toggleContact}
-              onNodesChanged={s.setAllNodes}
-            />
-          ) : (
-            <div style={{ background: '#f4f4f5', borderRadius: 20, padding: 24, color: '#999', fontSize: 13, textAlign: 'center' }}>
-              Tap a block to edit its details.
-            </div>
-          )}
+        {/* Attribute panel — fills height, add button pinned at bottom */}
+        <div style={{ display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+          <div className="no-scrollbar" style={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
+            {s.selected ? (
+              <EntryEditor
+                key={s.selected.id}
+                entry={s.selected}
+                nodes={s.allNodes}
+                contacts={s.contacts}
+                onUpdate={s.updateEntry}
+                onDelete={s.deleteEntry}
+                onToggleContact={s.toggleContact}
+                onNodesChanged={s.setAllNodes}
+                fillHeight
+              />
+            ) : (
+              <div style={{ background: '#f4f4f5', borderRadius: 20, padding: 24, color: '#999', fontSize: 13, textAlign: 'center', height: '100%', boxSizing: 'border-box' }}>
+                Tap a block to edit its details.
+              </div>
+            )}
+          </div>
 
-          <PrimaryButton onClick={() => s.addEntry(s.defaultDay)} style={{ width: '100%', marginTop: 12 }}>
+          <PrimaryButton onClick={() => s.addEntry(s.defaultDay)} style={{ width: '100%', marginTop: 12, flexShrink: 0 }}>
             + Add entry
           </PrimaryButton>
         </div>

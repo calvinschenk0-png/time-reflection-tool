@@ -6,7 +6,7 @@ import { timeToMinutes, formatDuration } from '@/lib/time'
 import { Node, Contact, Entry } from './types'
 import WorkstreamPicker from './WorkstreamPicker'
 
-export default function EntryEditor({ entry, nodes, contacts, onUpdate, onDelete, onToggleContact, onNodesChanged }: {
+export default function EntryEditor({ entry, nodes, contacts, onUpdate, onDelete, onToggleContact, onNodesChanged, fillHeight }: {
   entry: Entry
   nodes: Node[]
   contacts: Contact[]
@@ -14,6 +14,7 @@ export default function EntryEditor({ entry, nodes, contacts, onUpdate, onDelete
   onDelete: (id: string) => void
   onToggleContact: (entryId: string, contactId: string) => void
   onNodesChanged: (nodes: Node[]) => void
+  fillHeight?: boolean
 }) {
   const [note, setNote] = useState(entry.note ?? '')
 
@@ -22,7 +23,7 @@ export default function EntryEditor({ entry, nodes, contacts, onUpdate, onDelete
   const invalid = end <= start
 
   return (
-    <Card>
+    <Card style={fillHeight ? { minHeight: '100%', boxSizing: 'border-box', marginBottom: 0 } : undefined}>
       {/* Times */}
       <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
         <div style={{ flex: 1 }}>

@@ -107,7 +107,7 @@ export default function WeekCalendar({ weekDates, entries, nodes, selectedId, on
   }
 
   return (
-    <div style={{ background: '#f4f4f5', borderRadius: 20, overflow: 'hidden', display: 'flex', flexDirection: 'column', height: 640 }}>
+    <div style={{ background: '#f4f4f5', borderRadius: 20, overflow: 'hidden', display: 'flex', flexDirection: 'column', height: '100%' }}>
       {/* Day headers */}
       <div style={{ display: 'flex', borderBottom: '1px solid #e4e4e7', flexShrink: 0 }}>
         <div style={{ width: GUTTER, flexShrink: 0 }} />
@@ -129,7 +129,7 @@ export default function WeekCalendar({ weekDates, entries, nodes, selectedId, on
       </div>
 
       {/* Scrollable body */}
-      <div ref={scrollRef} style={{ flex: 1, overflowY: drag ? 'hidden' : 'auto', touchAction: drag ? 'none' : 'auto' }}>
+      <div ref={scrollRef} className="no-scrollbar" style={{ flex: 1, overflowY: drag ? 'hidden' : 'auto', touchAction: drag ? 'none' : 'auto' }}>
         <div style={{ display: 'flex', position: 'relative', height: DAY_MINUTES * PXPM }}>
           {/* Time gutter */}
           <div style={{ width: GUTTER, flexShrink: 0, position: 'relative' }}>
