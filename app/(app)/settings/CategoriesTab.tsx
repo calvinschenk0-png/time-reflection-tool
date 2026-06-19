@@ -21,11 +21,17 @@ export default function CategoriesTab({ initialNodes }: { initialNodes: Node[] }
   const [adding, setAdding] = useState<null | { level: 'project' | 'workstream'; parentId: string | null }>(null)
   const [form, setForm] = useState({ name: '', color: COLORS[0] })
   const [saving, setSaving] = useState(false)
+  const [showArchived, setShowArchived] = useState(false)
 
   const projects = nodes.filter(n => n.level === 'project' && !n.is_archived)
+  const archived = nodes.filter(n => n.is_archived)
 
   function workstreamsFor(projectId: string) {
     return nodes.filter(n => n.level === 'workstream' && n.parent_id === projectId && !n.is_archived)
+  }
+
+  function projectName(id: string | null) {
+    return nodes.find(n => n.id === id)?.name ?? 'a deleted project'
   }
 
   async function save() {
@@ -53,6 +59,11 @@ export default function CategoriesTab({ initialNodes }: { initialNodes: Node[] }
   async function archive(id: string) {
     await supabase.from('hierarchy_nodes').update({ is_archived: true }).eq('id', id)
     setNodes(n => n.map(node => node.id === id ? { ...node, is_archived: true } : node))
+  }
+
+  async function restore(id: string) {
+    await supabase.from('hierarchy_nodes').update({ is_archived: false }).eq('id', id)
+    setNodes(n => n.map(node => node.id === id ? { ...node, is_archived: false } : node))
   }
 
   function cancel() {
@@ -184,6 +195,49 @@ export default function CategoriesTab({ initialNodes }: { initialNodes: Node[] }
         <PrimaryButton onClick={() => setAdding({ level: 'project', parentId: null })} style={{ width: '100%' }}>
           + Add project
         </PrimaryButton>
+      )}
+
+      {/* Archived section */}
+      {archived.length > 0 && (
+        <div style={{ marginTop: 24 }}>
+          <button
+            onClick={() => setShowArchived(s => !s)}
+            style={{ fontSize: 12, color: '#999', background: 'none', border: 'none', cursor: 'pointer', padding: '4px 0', fontWeight: 500 }}
+          >
+            {showArchived ? '▾' : '▸'} Archived ({archived.length})
+          </button>
+
+          {showArchived && (
+            <Card style={{ marginTop: 8 }}>
+              <p style={{ fontSize: 12, color: '#999', marginBottom: 12 }}>
+                Archived items are hidden from logging but keep their history. Restore one to use it again.
+              </p>
+              {archived.map((node, i) => (
+                <div
+                  key={node.id}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0',
+                    borderBottom: i < archived.length - 1 ? '1px solid #e4e4e7' : 'none',
+                  }}
+                >
+                  {node.level === 'workstream' && <ColorDot color={node.color ?? '#ccc'} />}
+                  <span style={{ fontSize: 13, color: '#666', flex: 1 }}>
+                    {node.name}
+                    <span style={{ fontSize: 11, color: '#bbb', marginLeft: 8 }}>
+                      {node.level === 'project' ? 'Project' : `Workstream · ${projectName(node.parent_id)}`}
+                    </span>
+                  </span>
+                  <button
+                    onClick={() => restore(node.id)}
+                    style={{ fontSize: 12, color: '#2563eb', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 500 }}
+                  >
+                    Restore
+                  </button>
+                </div>
+              ))}
+            </Card>
+          )}
+        </div>
       )}
     </div>
   )
