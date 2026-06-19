@@ -114,7 +114,7 @@ export default function CategoriesTab({ initialNodes }: { initialNodes: Node[] }
                     label="Workstream name"
                     value={form.name}
                     onChange={v => setForm(f => ({ ...f, name: v }))}
-                    placeholder="e.g. Executive PMO, Training…"
+                    placeholder="e.g. Project management, change management, system readiness…"
                   />
                   <div style={{ marginBottom: 16 }}>
                     <label style={{ display: 'block', fontSize: 12, color: '#666', marginBottom: 8, fontWeight: 500 }}>
@@ -166,7 +166,7 @@ export default function CategoriesTab({ initialNodes }: { initialNodes: Node[] }
             label="Project name"
             value={form.name}
             onChange={v => setForm(f => ({ ...f, name: v }))}
-            placeholder="e.g. Client A, Internal Ops…"
+            placeholder="e.g. Client A, Internal Initiatives, Admin…"
           />
           <div style={{ display: 'flex', gap: 8 }}>
             <PrimaryButton onClick={save} disabled={saving || !form.name.trim()}>
