@@ -28,12 +28,6 @@ export default function CategoriesTab({ initialNodes }: { initialNodes: Node[] }
     return nodes.filter(n => n.level === 'workstream' && n.parent_id === projectId && !n.is_archived)
   }
 
-  function colorFor(node: Node): string {
-    if (node.level === 'project') return node.color ?? '#999'
-    const parent = nodes.find(n => n.id === node.parent_id)
-    return parent?.color ?? '#999'
-  }
-
   async function save() {
     if (!form.name.trim()) return
     setSaving(true)
@@ -45,7 +39,7 @@ export default function CategoriesTab({ initialNodes }: { initialNodes: Node[] }
       level: adding!.level,
       parent_id: adding!.parentId,
     }
-    if (adding!.level === 'project') {
+    if (adding!.level === 'workstream') {
       payload.color = form.color
     }
 
@@ -71,7 +65,7 @@ export default function CategoriesTab({ initialNodes }: { initialNodes: Node[] }
       {projects.length === 0 && !adding && (
         <Card>
           <p style={{ color: '#999', fontSize: 13, marginBottom: 16 }}>
-            No projects yet. A project is a primary category of work — something like a client engagement, an internal initiative, or a standing responsibility.
+            No projects yet. A project is the highest level of work — your broadest, top-level category, like a client engagement, an internal initiative, or a standing responsibility.
           </p>
           <PrimaryButton onClick={() => setAdding({ level: 'project', parentId: null })}>
             + Add project
@@ -83,7 +77,6 @@ export default function CategoriesTab({ initialNodes }: { initialNodes: Node[] }
         <Card key={project.id}>
           {/* Project header */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-            <ColorDot color={project.color ?? '#999'} />
             <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 15, fontWeight: 600, color: '#111', flex: 1 }}>
               {project.name}
             </span>
@@ -95,7 +88,7 @@ export default function CategoriesTab({ initialNodes }: { initialNodes: Node[] }
             {workstreamsFor(project.id).map((ws, i, arr) => (
               <div key={ws.id}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 0' }}>
-                  <div style={{ width: 2, height: 16, borderRadius: 99, background: project.color ?? '#ccc', flexShrink: 0 }} />
+                  <ColorDot color={ws.color ?? '#ccc'} />
                   <span style={{ fontSize: 13, fontWeight: 500, color: '#111', flex: 1 }}>{ws.name}</span>
                   <DangerButton onClick={() => archive(ws.id)}>Archive</DangerButton>
                 </div>
@@ -122,6 +115,12 @@ export default function CategoriesTab({ initialNodes }: { initialNodes: Node[] }
               : `New workstream under "${nodes.find(n => n.id === adding.parentId)?.name}"`}
           </SectionHeading>
 
+          {adding.level === 'project' && (
+            <p style={{ color: '#666', fontSize: 12, marginBottom: 12, lineHeight: 1.5 }}>
+              A project is the highest level of work — your broadest, top-level category. Think of a client engagement, an internal initiative, or a standing responsibility.
+            </p>
+          )}
+
           <Input
             label={adding.level === 'project' ? 'Project name' : 'Workstream name'}
             value={form.name}
@@ -129,10 +128,10 @@ export default function CategoriesTab({ initialNodes }: { initialNodes: Node[] }
             placeholder={adding.level === 'project' ? 'e.g. Client A, Internal Ops…' : 'e.g. Executive PMO, Training…'}
           />
 
-          {adding.level === 'project' && (
+          {adding.level === 'workstream' && (
             <div style={{ marginBottom: 16 }}>
               <label style={{ display: 'block', fontSize: 12, color: '#666', marginBottom: 8, fontWeight: 500 }}>
-                Color (used in charts)
+                Color (shown on the calendar)
               </label>
               <div style={{ display: 'flex', gap: 8 }}>
                 {COLORS.map(c => (
