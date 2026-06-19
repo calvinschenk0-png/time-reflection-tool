@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Node } from './types'
+import FieldHeading from './FieldHeading'
 
 const COLORS = ['#2563eb', '#7c3aed', '#16a34a', '#d97706', '#dc2626', '#0891b2', '#be185d', '#059669']
 
@@ -70,7 +71,7 @@ export default function CategoryPicker({ nodes, selectedWorkstreamId, onPick, on
   return (
     <div>
       {/* PROJECT */}
-      <label style={lbl}>Project</label>
+      <FieldHeading label="Project" settingsTab="Categories" />
       <div style={{ marginBottom: 14 }}>
         {pCreating ? (
           <div style={createBox}>
@@ -106,7 +107,7 @@ export default function CategoryPicker({ nodes, selectedWorkstreamId, onPick, on
       </div>
 
       {/* WORKSTREAM */}
-      <label style={lbl}>Workstream</label>
+      <FieldHeading label="Workstream" settingsTab="Categories" />
       {!projectId ? (
         <div style={{ fontSize: 12, color: '#999', padding: '9px 12px', border: '1px dashed #e4e4e7', borderRadius: 10 }}>
           Select a project first
@@ -158,7 +159,6 @@ export default function CategoryPicker({ nodes, selectedWorkstreamId, onPick, on
   )
 }
 
-const lbl: React.CSSProperties = { display: 'block', fontSize: 12, color: '#666', marginBottom: 5, fontWeight: 500 }
 const inputStyle: React.CSSProperties = {
   width: '100%', border: '1px solid #e4e4e7', borderRadius: 10, padding: '9px 12px',
   fontSize: 13, color: '#111', background: '#fff', outline: 'none', fontFamily: "'Inter', sans-serif", boxSizing: 'border-box',

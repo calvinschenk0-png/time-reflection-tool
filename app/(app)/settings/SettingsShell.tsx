@@ -9,12 +9,14 @@ import ContactsTab from './ContactsTab'
 const TABS = ['General', 'Categories', 'Contacts'] as const
 type Tab = typeof TABS[number]
 
-export default function SettingsShell({ initialSettings, initialNodes, initialContacts }: {
+export default function SettingsShell({ initialTab, initialSettings, initialNodes, initialContacts }: {
+  initialTab?: string
   initialSettings: any
   initialNodes: any[]
   initialContacts: any[]
 }) {
-  const [tab, setTab] = useState<Tab>('General')
+  const startTab = (TABS as readonly string[]).includes(initialTab ?? '') ? (initialTab as Tab) : 'General'
+  const [tab, setTab] = useState<Tab>(startTab)
 
   return (
     <PageShell>

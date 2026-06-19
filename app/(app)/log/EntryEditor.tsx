@@ -6,6 +6,7 @@ import { timeToMinutes, minutesToTime, formatClock, formatDuration } from '@/lib
 import { Node, Contact, Entry } from './types'
 import CategoryPicker from './CategoryPicker'
 import ContactPicker from './ContactPicker'
+import FieldHeading from './FieldHeading'
 
 export default function EntryEditor({ entry, nodes, contacts, onUpdate, onDelete, onToggleContact, onNodesChanged, onContactsChanged, fillHeight }: {
   entry: Entry
@@ -53,7 +54,7 @@ export default function EntryEditor({ entry, nodes, contacts, onUpdate, onDelete
 
       {/* Contacts */}
       <div style={{ marginBottom: 16 }}>
-        <label style={labelStyle}>People</label>
+        <FieldHeading label="People" settingsTab="Contacts" />
         <ContactPicker
           contacts={contacts}
           selectedIds={entry.contactIds}
@@ -63,7 +64,7 @@ export default function EntryEditor({ entry, nodes, contacts, onUpdate, onDelete
       </div>
 
       {/* Note */}
-      <label style={labelStyle}>Note</label>
+      <FieldHeading label="Note" />
       <textarea
         value={note}
         onChange={e => setNote(e.target.value)}

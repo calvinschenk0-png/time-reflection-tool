@@ -1,7 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
 import SettingsShell from './SettingsShell'
 
-export default async function SettingsPage() {
+export default async function SettingsPage({ searchParams }: { searchParams: Promise<{ tab?: string }> }) {
+  const { tab } = await searchParams
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -17,6 +18,7 @@ export default async function SettingsPage() {
 
   return (
     <SettingsShell
+      initialTab={tab}
       initialSettings={settings}
       initialNodes={nodes ?? []}
       initialContacts={contacts ?? []}
