@@ -54,7 +54,7 @@ export default function LogDay({ date, settings, nodes, contacts, initialEntries
     const end = Math.min(start + 30, 24 * 60)
 
     const { data: { user } } = await supabase.auth.getUser()
-    const { data } = await supabase.from('time_entries').insert({
+    const { data, error } = await supabase.from('time_entries').insert({
       user_id: user!.id,
       entry_date: date,
       start_time: minutesToTime(start),
@@ -63,6 +63,15 @@ export default function LogDay({ date, settings, nodes, contacts, initialEntries
       hierarchy_node_id: null,
       note: null,
     }).select().single()
+
+    if (error) {
+      if (error.message.includes('null value') && error.message.includes('hierarchy_node_id')) {
+        alert('Database needs an update before draft blocks can be saved. Please run migration 04 in Supabase, then try again.')
+      } else {
+        alert('Could not add entry: ' + error.message)
+      }
+      return
+    }
 
     if (data) {
       const entry: Entry = { ...data, contactIds: [] }
