@@ -22,7 +22,7 @@ type DragState = {
   moved: boolean
 }
 
-export default function WeekCalendar({ weekDates, entries, nodes, selectedId, onSelect, onCommitDrag, onCreateEntry }: {
+export default function WeekCalendar({ weekDates, entries, nodes, selectedId, onSelect, onCommitDrag, onCreateEntry, onDeleteEntry }: {
   weekDates: string[]
   entries: Entry[]
   nodes: Node[]
@@ -30,12 +30,14 @@ export default function WeekCalendar({ weekDates, entries, nodes, selectedId, on
   onSelect: (id: string) => void
   onCommitDrag: (id: string, startMin: number, endMin: number, newDate: string) => void
   onCreateEntry: (date: string, startMin: number, endMin: number) => void
+  onDeleteEntry: (id: string) => void
 }) {
   const scrollRef = useRef<HTMLDivElement>(null)
   const colsRef = useRef<HTMLDivElement>(null)
   const [drag, setDrag] = useState<DragState | null>(null)
   const [preview, setPreview] = useState<{ id: string; start: number; end: number; date: string } | null>(null)
   const [create, setCreate] = useState<{ date: string; rectTop: number; startMin: number; curMin: number } | null>(null)
+  const [menu, setMenu] = useState<{ id: string; x: number; y: number } | null>(null)
 
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = 7 * 60 * PXPM
@@ -229,6 +231,7 @@ export default function WeekCalendar({ weekDates, entries, nodes, selectedId, on
                     <div
                       key={entry.id}
                       onPointerDown={e => beginDrag(e, entry, 'move')}
+                      onContextMenu={e => { e.preventDefault(); setMenu({ id: entry.id, x: e.clientX, y: e.clientY }) }}
                       style={{
                         position: 'absolute', top: start * PXPM, height, left: 2, right: 2,
                         background: complete ? color + '26' : '#fef3c7',
@@ -258,6 +261,21 @@ export default function WeekCalendar({ weekDates, entries, nodes, selectedId, on
           </div>
         </div>
       </div>
+
+      {/* Right-click menu */}
+      {menu && (
+        <>
+          <div onClick={() => setMenu(null)} onContextMenu={e => { e.preventDefault(); setMenu(null) }} style={{ position: 'fixed', inset: 0, zIndex: 60 }} />
+          <div style={{ position: 'fixed', top: menu.y, left: menu.x, zIndex: 61, background: '#fff', border: '1px solid #e4e4e7', borderRadius: 8, boxShadow: '0 6px 20px rgba(0,0,0,0.15)', padding: 4, minWidth: 140 }}>
+            <button
+              onClick={() => { onDeleteEntry(menu.id); setMenu(null) }}
+              style={{ width: '100%', textAlign: 'left', padding: '8px 12px', fontSize: 13, color: '#dc2626', background: 'none', border: 'none', borderRadius: 6, cursor: 'pointer' }}
+            >
+              Delete entry
+            </button>
+          </div>
+        </>
+      )}
     </div>
   )
 }
