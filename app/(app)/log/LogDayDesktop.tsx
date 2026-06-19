@@ -32,6 +32,7 @@ export default function LogDayDesktop({ s }: { s: LogDayState }) {
           selectedId={s.selectedId}
           onSelect={s.setSelectedId}
           onCommitDrag={s.commitDrag}
+          onCreateEntry={s.createEntry}
         />
 
         {/* Attribute panel — fills height, add button pinned at bottom */}

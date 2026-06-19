@@ -40,20 +40,15 @@ export function useLogDay({ date, weekStart, settings, nodes, contacts, initialE
     return entries.filter(e => e.entry_date === d)
   }
 
-  // Add a block to a given day, starting after that day's last block
-  async function addEntry(targetDate: string) {
-    const dayEntries = entriesForDay(targetDate).sort((a, b) => timeToMinutes(a.end_time) - timeToMinutes(b.end_time))
-    const lastEnd = dayEntries.length ? timeToMinutes(dayEntries[dayEntries.length - 1].end_time) : 9 * 60
-    const start = Math.min(lastEnd, 24 * 60 - 30)
-    const end = Math.min(start + 30, 24 * 60)
-
+  // Create a block on a day with explicit start/end minutes
+  async function createEntry(targetDate: string, startMin: number, endMin: number) {
     const { data: { user } } = await supabase.auth.getUser()
     const { data, error } = await supabase.from('time_entries').insert({
       user_id: user!.id,
       entry_date: targetDate,
-      start_time: minutesToTime(start),
-      end_time: minutesToTime(end),
-      duration_minutes: end - start,
+      start_time: minutesToTime(startMin),
+      end_time: minutesToTime(endMin),
+      duration_minutes: endMin - startMin,
       hierarchy_node_id: null,
       note: null,
     }).select().single()
@@ -71,6 +66,15 @@ export function useLogDay({ date, weekStart, settings, nodes, contacts, initialE
       setEntries(es => [...es, entry])
       setSelectedId(entry.id)
     }
+  }
+
+  // "+ Add entry" button: start after that day's last block
+  async function addEntry(targetDate: string) {
+    const dayEntries = entriesForDay(targetDate).sort((a, b) => timeToMinutes(a.end_time) - timeToMinutes(b.end_time))
+    const lastEnd = dayEntries.length ? timeToMinutes(dayEntries[dayEntries.length - 1].end_time) : 9 * 60
+    const start = Math.min(lastEnd, 24 * 60 - 30)
+    const end = Math.min(start + 30, 24 * 60)
+    await createEntry(targetDate, start, end)
   }
 
   async function updateEntry(id: string, patch: Partial<Entry>) {
@@ -130,7 +134,7 @@ export function useLogDay({ date, weekStart, settings, nodes, contacts, initialE
     date, weekStart, weekDates, defaultDay, expectedMinutes,
     contacts: allContacts, setAllContacts,
     entries, entriesForDay, selectedId, setSelectedId, allNodes, setAllNodes, selected,
-    addEntry, updateEntry, commitDrag, deleteEntry, toggleContact,
+    addEntry, createEntry, updateEntry, commitDrag, deleteEntry, toggleContact,
     goToWeek, goToDate,
   }
 }

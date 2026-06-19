@@ -22,18 +22,20 @@ type DragState = {
   moved: boolean
 }
 
-export default function WeekCalendar({ weekDates, entries, nodes, selectedId, onSelect, onCommitDrag }: {
+export default function WeekCalendar({ weekDates, entries, nodes, selectedId, onSelect, onCommitDrag, onCreateEntry }: {
   weekDates: string[]
   entries: Entry[]
   nodes: Node[]
   selectedId: string | null
   onSelect: (id: string) => void
   onCommitDrag: (id: string, startMin: number, endMin: number, newDate: string) => void
+  onCreateEntry: (date: string, startMin: number, endMin: number) => void
 }) {
   const scrollRef = useRef<HTMLDivElement>(null)
   const colsRef = useRef<HTMLDivElement>(null)
   const [drag, setDrag] = useState<DragState | null>(null)
   const [preview, setPreview] = useState<{ id: string; start: number; end: number; date: string } | null>(null)
+  const [create, setCreate] = useState<{ date: string; rectTop: number; startMin: number; curMin: number } | null>(null)
 
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = 7 * 60 * PXPM
@@ -96,6 +98,44 @@ export default function WeekCalendar({ weekDates, entries, nodes, selectedId, on
     }
   }, [drag, preview, onCommitDrag, onSelect, weekDates, entries])
 
+  // Drag-on-empty-space to create a new block
+  useEffect(() => {
+    if (!create) return
+    const snap = (m: number) => Math.round(m / SNAP) * SNAP
+
+    function onMove(e: PointerEvent) {
+      const cur = Math.max(0, Math.min(DAY_MINUTES, snap((e.clientY - create!.rectTop) / PXPM)))
+      setCreate(c => c ? { ...c, curMin: cur } : c)
+    }
+    function onUp() {
+      let s = Math.min(create!.startMin, create!.curMin)
+      let e = Math.max(create!.startMin, create!.curMin)
+      // Don't overlap existing blocks on that day
+      const others = entries
+        .filter(x => x.entry_date === create!.date)
+        .map(x => ({ s: timeToMinutes(x.start_time), e: timeToMinutes(x.end_time) }))
+        .sort((a, b) => a.s - b.s)
+      for (const o of others) { if (s >= o.s && s < o.e) s = o.e }
+      const next = others.find(o => o.s >= s)
+      if (next) e = Math.min(e, next.s)
+      if (e - s >= MIN_DUR) onCreateEntry(create!.date, s, e)
+      setCreate(null)
+    }
+
+    window.addEventListener('pointermove', onMove)
+    window.addEventListener('pointerup', onUp)
+    return () => {
+      window.removeEventListener('pointermove', onMove)
+      window.removeEventListener('pointerup', onUp)
+    }
+  }, [create, entries, onCreateEntry])
+
+  function beginCreate(e: React.PointerEvent, date: string) {
+    const rect = e.currentTarget.getBoundingClientRect()
+    const startMin = Math.max(0, Math.min(DAY_MINUTES, Math.round(((e.clientY - rect.top) / PXPM) / SNAP) * SNAP))
+    setCreate({ date, rectTop: rect.top, startMin, curMin: startMin })
+  }
+
   function effDate(e: Entry) { return preview?.id === e.id ? preview.date : e.entry_date }
   function effStart(e: Entry) { return preview?.id === e.id ? preview.start : timeToMinutes(e.start_time) }
   function effEnd(e: Entry) { return preview?.id === e.id ? preview.end : timeToMinutes(e.end_time) }
@@ -138,7 +178,7 @@ export default function WeekCalendar({ weekDates, entries, nodes, selectedId, on
       </div>
 
       {/* Scrollable body */}
-      <div ref={scrollRef} className="no-scrollbar" style={{ flex: 1, overflowY: drag ? 'hidden' : 'auto', touchAction: drag ? 'none' : 'auto' }}>
+      <div ref={scrollRef} className="no-scrollbar" style={{ flex: 1, overflowY: (drag || create) ? 'hidden' : 'auto', touchAction: (drag || create) ? 'none' : 'auto' }}>
         <div style={{ display: 'flex', position: 'relative', height: DAY_MINUTES * PXPM }}>
           {/* Time gutter */}
           <div style={{ width: GUTTER, flexShrink: 0, position: 'relative' }}>
@@ -152,11 +192,27 @@ export default function WeekCalendar({ weekDates, entries, nodes, selectedId, on
           {/* Day columns */}
           <div ref={colsRef} style={{ flex: 1, display: 'flex' }}>
             {weekDates.map(d => (
-              <div key={d} style={{ flex: 1, position: 'relative', borderLeft: '1px solid #e7e7e9' }}>
-                {/* hour lines */}
+              <div
+                key={d}
+                onPointerDown={e => { if (e.target === e.currentTarget || (e.target as HTMLElement).dataset.bg) beginCreate(e, d) }}
+                style={{ flex: 1, position: 'relative', borderLeft: '1px solid #e7e7e9', cursor: 'cell' }}
+              >
+                {/* hour lines (data-bg so a press on them also starts create) */}
                 {Array.from({ length: 25 }).map((_, h) => (
-                  <div key={h} style={{ position: 'absolute', top: h * 60 * PXPM, left: 0, right: 0, borderTop: '1px solid #ededef' }} />
+                  <div key={h} data-bg="1" style={{ position: 'absolute', top: h * 60 * PXPM, left: 0, right: 0, borderTop: '1px solid #ededef' }} />
                 ))}
+
+                {/* create preview ghost */}
+                {create?.date === d && (() => {
+                  const s = Math.min(create.startMin, create.curMin)
+                  const e = Math.max(create.startMin, create.curMin)
+                  return (
+                    <div style={{
+                      position: 'absolute', top: s * PXPM, height: Math.max(2, (e - s) * PXPM), left: 2, right: 2,
+                      background: '#2563eb22', border: '1px solid #2563eb', borderRadius: 5, pointerEvents: 'none', zIndex: 5,
+                    }} />
+                  )
+                })()}
 
                 {/* blocks for this day */}
                 {entries.filter(e => effDate(e) === d).map(entry => {
