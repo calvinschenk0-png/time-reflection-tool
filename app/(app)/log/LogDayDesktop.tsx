@@ -1,56 +1,97 @@
 'use client'
 
 import WeekCalendar from './WeekCalendar'
+import MonthCalendar from './MonthCalendar'
 import EntryEditor from './EntryEditor'
 import { PrimaryButton } from '@/components/ui'
-import { weekRangeLabel, shiftDate, todayStr, isWeekday } from '@/lib/time'
+import { weekRangeLabel, monthLabel, monthStartOf, todayStr, isWeekday } from '@/lib/time'
 import { LogDayState } from './useLogDay'
 
 export default function LogDayDesktop({ s }: { s: LogDayState }) {
-  // Week-to-date coverage: weekdays from week start through today, vs logged so far
+  const isMonth = s.view === 'month'
+
+  // Week-to-date coverage (week view only)
   const today = todayStr()
   const expectedToDate = s.weekDates.filter(d => d <= today && isWeekday(d)).length * s.expectedMinutes
   const loggedToDate = s.entries.filter(e => e.entry_date <= today).reduce((sum, e) => sum + e.duration_minutes, 0)
   const weekPct = expectedToDate > 0 ? Math.min(100, Math.round((loggedToDate / expectedToDate) * 100)) : null
 
+  // Where "+ Add entry" drops a block
+  const addTarget = isMonth
+    ? (today.slice(0, 7) === s.date.slice(0, 7) ? today : monthStartOf(s.date))
+    : s.defaultDay
+
   return (
     <div style={{ height: 'calc(100vh - 52px)', display: 'flex', flexDirection: 'column', padding: '24px', boxSizing: 'border-box' }}>
-      {/* Week header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16, marginBottom: 16, flexShrink: 0 }}>
-        <button onClick={() => s.goToWeek(shiftDate(s.weekStart, -7))} style={navArrow}>‹</button>
-        <div style={{ textAlign: 'center', minWidth: 160 }}>
-          <h1 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 18, fontWeight: 700, color: '#111' }}>
-            {weekRangeLabel(s.weekStart)}
-          </h1>
+      {/* Header: view toggle (left) · period nav (center) · today (right) */}
+      <div style={{ display: 'flex', alignItems: 'center', marginBottom: 16, flexShrink: 0 }}>
+        {/* Left: Week / Month toggle */}
+        <div style={{ display: 'flex', gap: 2, background: '#f4f4f5', borderRadius: 10, padding: 3, width: 160 }}>
+          {(['week', 'month'] as const).map(v => (
+            <button
+              key={v}
+              onClick={() => s.setView(v)}
+              style={{
+                flex: 1, border: 'none', borderRadius: 8, padding: '6px 0', fontSize: 13, cursor: 'pointer',
+                background: s.view === v ? '#fff' : 'transparent',
+                color: s.view === v ? '#111' : '#999', fontWeight: s.view === v ? 600 : 400,
+                boxShadow: s.view === v ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
+                textTransform: 'capitalize',
+              }}
+            >
+              {v}
+            </button>
+          ))}
         </div>
-        <button onClick={() => s.goToWeek(shiftDate(s.weekStart, 7))} style={navArrow}>›</button>
-        <button onClick={() => s.goToDate(todayStr())} style={todayBtn}>Today</button>
+
+        {/* Center: period nav */}
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16 }}>
+          <button onClick={s.prevPeriod} style={navArrow}>‹</button>
+          <h1 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 18, fontWeight: 700, color: '#111', minWidth: 160, textAlign: 'center' }}>
+            {isMonth ? monthLabel(s.date) : weekRangeLabel(s.weekStart)}
+          </h1>
+          <button onClick={s.nextPeriod} style={navArrow}>›</button>
+        </div>
+
+        {/* Right: Today */}
+        <div style={{ width: 160, display: 'flex', justifyContent: 'flex-end' }}>
+          <button onClick={s.goToday} style={todayBtn}>Today</button>
+        </div>
       </div>
 
       {/* Coverage to date */}
       <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginBottom: 16, flexShrink: 0 }}>
-        <CoverageStat label="This week logged" pct={weekPct} />
-        <CoverageStat label="This month logged" pct={s.monthPct} />
+        {!isMonth && <CoverageStat label="This week logged" pct={weekPct} />}
+        <CoverageStat label={isMonth ? `${monthLabel(s.date)} logged` : 'This month logged'} pct={s.monthPct} />
       </div>
 
-      {/* 80 / 20 split, filling the rest of the viewport height.
-          minmax(0,…) keeps the ratio fixed regardless of panel content. */}
+      {/* Calendar + attribute panel */}
       <div style={{ flex: 1, minHeight: 0, display: 'grid', gridTemplateColumns: 'minmax(0, 4fr) minmax(0, 1fr)', gap: 16 }}>
-        {/* Calendar */}
-        <WeekCalendar
-          weekDates={s.weekDates}
-          entries={s.entries}
-          nodes={s.allNodes}
-          contacts={s.contacts}
-          expectedMinutes={s.expectedMinutes}
-          selectedId={s.selectedId}
-          onSelect={s.setSelectedId}
-          onCommitDrag={s.commitDrag}
-          onCreateEntry={s.createEntry}
-          onDeleteEntry={s.deleteEntry}
-        />
+        {isMonth ? (
+          <MonthCalendar
+            anchorDate={s.date}
+            entries={s.entries}
+            nodes={s.allNodes}
+            contacts={s.contacts}
+            selectedId={s.selectedId}
+            onSelect={s.setSelectedId}
+          />
+        ) : (
+          <WeekCalendar
+            weekDates={s.weekDates}
+            entries={s.entries}
+            nodes={s.allNodes}
+            contacts={s.contacts}
+            expectedMinutes={s.expectedMinutes}
+            selectedId={s.selectedId}
+            onSelect={s.setSelectedId}
+            onCommitDrag={s.commitDrag}
+            onCreateEntry={s.createEntry}
+            onDeleteEntry={s.deleteEntry}
+          />
+        )}
 
-        {/* Attribute panel — fills height, add button pinned at bottom */}
+        {/* Attribute panel */}
         <div style={{ display: 'flex', flexDirection: 'column', minHeight: 0 }}>
           <div className="no-scrollbar" style={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
             {s.selected ? (
@@ -73,7 +114,7 @@ export default function LogDayDesktop({ s }: { s: LogDayState }) {
             )}
           </div>
 
-          <PrimaryButton onClick={() => s.addEntry(s.defaultDay)} style={{ width: '100%', marginTop: 12, flexShrink: 0 }}>
+          <PrimaryButton onClick={() => s.addEntry(addTarget)} style={{ width: '100%', marginTop: 12, flexShrink: 0 }}>
             + Add entry
           </PrimaryButton>
         </div>
@@ -105,5 +146,5 @@ const navArrow: React.CSSProperties = {
 }
 const todayBtn: React.CSSProperties = {
   border: '1px solid #e4e4e7', borderRadius: 8, background: '#fff', color: '#111',
-  fontSize: 12, fontWeight: 500, padding: '6px 12px', cursor: 'pointer', marginLeft: 8,
+  fontSize: 12, fontWeight: 500, padding: '6px 12px', cursor: 'pointer',
 }

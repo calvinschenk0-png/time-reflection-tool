@@ -3,12 +3,13 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { timeToMinutes, minutesToTime, shiftDate, weekStartOf, todayStr } from '@/lib/time'
+import { timeToMinutes, minutesToTime, shiftDate, shiftMonth, todayStr } from '@/lib/time'
 import { Node, Contact, Entry } from './types'
 
 export type LogDayProps = {
   date: string
   weekStart: string
+  view: 'week' | 'month'
   monthPct: number | null
   settings: any
   nodes: Node[]
@@ -17,7 +18,7 @@ export type LogDayProps = {
   initialEntryContacts: { entry_id: string; contact_id: string }[]
 }
 
-export function useLogDay({ date, weekStart, monthPct, settings, nodes, contacts, initialEntries, initialEntryContacts }: LogDayProps) {
+export function useLogDay({ date, weekStart, view, monthPct, settings, nodes, contacts, initialEntries, initialEntryContacts }: LogDayProps) {
   const supabase = createClient()
   const router = useRouter()
 
@@ -118,10 +119,14 @@ export function useLogDay({ date, weekStart, monthPct, settings, nodes, contacts
     }
   }
 
-  function goToWeek(newWeekStart: string) {
+  function go(d: string, v: 'week' | 'month') {
     setSelectedId(null)
-    router.push(`/log?date=${newWeekStart}`)
+    router.push(`/log?date=${d}&view=${v}`)
   }
+  function setView(v: 'week' | 'month') { go(date, v) }
+  function prevPeriod() { go(view === 'month' ? shiftMonth(date, -1) : shiftDate(weekStart, -7), view) }
+  function nextPeriod() { go(view === 'month' ? shiftMonth(date, 1) : shiftDate(weekStart, 7), view) }
+  function goToday() { go(todayStr(), view) }
 
   function goToDate(newDate: string) {
     setSelectedId(null)
@@ -132,11 +137,11 @@ export function useLogDay({ date, weekStart, monthPct, settings, nodes, contacts
   const defaultDay = weekDates.includes(todayStr()) ? todayStr() : weekStart
 
   return {
-    date, weekStart, weekDates, defaultDay, expectedMinutes, monthPct,
+    date, weekStart, weekDates, defaultDay, expectedMinutes, monthPct, view,
     contacts: allContacts, setAllContacts,
     entries, entriesForDay, selectedId, setSelectedId, allNodes, setAllNodes, selected,
     addEntry, createEntry, updateEntry, commitDrag, deleteEntry, toggleContact,
-    goToWeek, goToDate,
+    setView, prevPeriod, nextPeriod, goToday, goToDate,
   }
 }
 

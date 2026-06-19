@@ -58,6 +58,30 @@ export function isWeekday(dateStr: string): boolean {
   return g !== 0 && g !== 6
 }
 
+// First day of the month containing dateStr, e.g. "2026-06-01"
+export function monthStartOf(dateStr: string): string {
+  return `${dateStr.slice(0, 7)}-01`
+}
+
+// Last day of the month containing dateStr
+export function monthEndOf(dateStr: string): string {
+  const [y, m] = dateStr.split('-').map(Number)
+  const last = new Date(y, m, 0).getDate()
+  return `${y}-${String(m).padStart(2, '0')}-${String(last).padStart(2, '0')}`
+}
+
+// First day of the month n months from dateStr's month
+export function shiftMonth(dateStr: string, n: number): string {
+  const [y, m] = dateStr.split('-').map(Number)
+  const d = new Date(y, m - 1 + n, 1)
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-01`
+}
+
+// "June 2026"
+export function monthLabel(dateStr: string): string {
+  return new Date(dateStr + 'T00:00:00').toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })
+}
+
 // Sunday of the week containing dateStr, as "YYYY-MM-DD"
 export function weekStartOf(dateStr: string): string {
   const d = new Date(dateStr + 'T00:00:00')
