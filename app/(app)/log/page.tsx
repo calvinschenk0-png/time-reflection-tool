@@ -58,6 +58,8 @@ export default async function LogPage({ searchParams }: { searchParams: Promise<
 
   return (
     <LogDay
+      // Remount on navigation so entry state re-reads the freshly fetched data
+      key={`${date}-${view}`}
       date={date}
       weekStart={weekStart}
       view={view}
