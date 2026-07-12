@@ -1,8 +1,59 @@
-export default function InsightsPage() {
+import { createClient } from '@/lib/supabase/server'
+import { todayStr, weekStartOf, monthStartOf, monthEndOf, shiftDate } from '@/lib/time'
+import InsightsDashboard from './InsightsDashboard'
+import { groupByWorkstream, groupByProject, groupByContact, expectedMinutesForRange } from './insights-calc'
+
+type Range = 'week' | 'month' | 'custom'
+
+export default async function InsightsPage({ searchParams }: { searchParams: Promise<{ range?: string; start?: string; end?: string }> }) {
+  const params = await searchParams
+  const today = todayStr()
+  const range: Range = params.range === 'month' ? 'month' : params.range === 'custom' ? 'custom' : 'week'
+
+  let rangeStart: string
+  let rangeEnd: string
+  if (range === 'month') {
+    rangeStart = monthStartOf(today)
+    rangeEnd = monthEndOf(today)
+  } else if (range === 'custom' && params.start && params.end && params.start <= params.end) {
+    rangeStart = params.start
+    rangeEnd = params.end
+  } else {
+    rangeStart = weekStartOf(today)
+    rangeEnd = shiftDate(rangeStart, 6)
+  }
+
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  const [{ data: settings }, { data: nodes }, { data: contacts }, { data: entries }] = await Promise.all([
+    supabase.from('user_settings').select('*').eq('user_id', user!.id).single(),
+    supabase.from('hierarchy_nodes').select('*').eq('user_id', user!.id).eq('is_archived', false),
+    supabase.from('contacts').select('id, name').eq('user_id', user!.id).eq('is_archived', false),
+    supabase.from('time_entries').select('id, entry_date, duration_minutes, hierarchy_node_id')
+      .eq('user_id', user!.id).gte('entry_date', rangeStart).lte('entry_date', rangeEnd),
+  ])
+
+  const entryIds = (entries ?? []).map(e => e.id)
+  let entryContacts: { entry_id: string; contact_id: string }[] = []
+  if (entryIds.length) {
+    const { data } = await supabase.from('entry_contacts').select('*').in('entry_id', entryIds)
+    entryContacts = data ?? []
+  }
+
+  const expectedMinutes = settings?.expected_workday_minutes ?? 480
+  const totalMinutes = (entries ?? []).reduce((sum, e) => sum + e.duration_minutes, 0)
+  const workstreamGroups = groupByWorkstream(entries ?? [], nodes ?? [])
+
   return (
-    <div className="max-w-5xl mx-auto px-4 py-12">
-      <h1 className="text-2xl font-bold text-gray-900">Insights</h1>
-      <p className="mt-2 text-gray-500">Your charts and trends will appear here — Phase 6.</p>
-    </div>
+    <InsightsDashboard
+      range={range}
+      rangeStart={rangeStart}
+      rangeEnd={rangeEnd}
+      totalMinutes={totalMinutes}
+      expectedMinutes={expectedMinutesForRange(rangeStart, rangeEnd, today, expectedMinutes)}
+      projectGroups={groupByProject(workstreamGroups)}
+      contactGroups={groupByContact(entries ?? [], entryContacts, contacts ?? [])}
+    />
   )
 }
