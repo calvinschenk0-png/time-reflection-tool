@@ -1,28 +1,28 @@
 import { isWeekday } from '@/lib/time'
-import { EntryRow, NodeRow, WorkstreamGroup, groupByWorkstream } from '../home-calc'
+import { EntryRow, NodeRow, CategoryGroup, groupByCategory } from '../home-calc'
 
-export { groupByWorkstream }
-export type { EntryRow, NodeRow, WorkstreamGroup }
+export { groupByCategory }
+export type { EntryRow, NodeRow, CategoryGroup }
 
-export type ProjectGroup = {
-  projectName: string
+export type AreaGroup = {
+  areaName: string
   minutes: number
-  workstreams: WorkstreamGroup[]
+  categories: CategoryGroup[]
 }
 
-// Buckets workstream groups by their parent project. The synthetic "Unassigned draft"
-// group (no project) becomes its own top-level, workstream-less entry.
-export function groupByProject(workstreamGroups: WorkstreamGroup[]): ProjectGroup[] {
-  const byProject = new Map<string, ProjectGroup>()
-  for (const g of workstreamGroups) {
-    const key = g.projectName ?? `__unassigned__${g.id}`
-    const label = g.projectName ?? g.name
-    if (!byProject.has(key)) byProject.set(key, { projectName: label, minutes: 0, workstreams: [] })
-    const entry = byProject.get(key)!
+// Buckets category groups by their parent area. The synthetic "Unassigned draft"
+// group (no area) becomes its own top-level, category-less entry.
+export function groupByArea(categoryGroups: CategoryGroup[]): AreaGroup[] {
+  const byArea = new Map<string, AreaGroup>()
+  for (const g of categoryGroups) {
+    const key = g.areaName ?? `__unassigned__${g.id}`
+    const label = g.areaName ?? g.name
+    if (!byArea.has(key)) byArea.set(key, { areaName: label, minutes: 0, categories: [] })
+    const entry = byArea.get(key)!
     entry.minutes += g.minutes
-    if (g.projectName) entry.workstreams.push(g)
+    if (g.areaName) entry.categories.push(g)
   }
-  return [...byProject.values()].sort((a, b) => b.minutes - a.minutes)
+  return [...byArea.values()].sort((a, b) => b.minutes - a.minutes)
 }
 
 export type EntryWithId = EntryRow & { id: string }
