@@ -53,7 +53,7 @@ export default function LoginPage() {
             Time Reflection
           </p>
           <p style={{ fontSize: 13, color: '#999', lineHeight: 1.5 }}>
-            A private log of where your workday actually goes — by project, workstream, and who you spent it with.
+            A private log of where your time actually goes — by area, category, and who you spent it with.
           </p>
         </div>
 
