@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { todayStr, weekStartOf, monthStartOf, monthEndOf, shiftDate, isValidDateStr } from '@/lib/time'
 import InsightsDashboard from './InsightsDashboard'
-import { groupByWorkstream, groupByProject, groupByContact, expectedMinutesForRange } from './insights-calc'
+import { groupByCategory, groupByArea, groupByContact, expectedMinutesForRange } from './insights-calc'
 
 type Range = 'week' | 'month' | 'custom'
 
@@ -43,7 +43,7 @@ export default async function InsightsPage({ searchParams }: { searchParams: Pro
 
   const expectedMinutes = settings?.expected_workday_minutes ?? 480
   const totalMinutes = (entries ?? []).reduce((sum, e) => sum + e.duration_minutes, 0)
-  const workstreamGroups = groupByWorkstream(entries ?? [], nodes ?? [])
+  const categoryGroups = groupByCategory(entries ?? [], nodes ?? [])
 
   return (
     <InsightsDashboard
@@ -52,7 +52,7 @@ export default async function InsightsPage({ searchParams }: { searchParams: Pro
       rangeEnd={rangeEnd}
       totalMinutes={totalMinutes}
       expectedMinutes={expectedMinutesForRange(rangeStart, rangeEnd, today, expectedMinutes)}
-      projectGroups={groupByProject(workstreamGroups)}
+      areaGroups={groupByArea(categoryGroups)}
       contactGroups={groupByContact(entries ?? [], entryContacts, contacts ?? [])}
     />
   )

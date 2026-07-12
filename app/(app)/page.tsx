@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { todayStr, isWeekday, shiftDate, weekStartOf } from '@/lib/time'
 import HomeDashboard from './HomeDashboard'
-import { needsAttentionDates, weekStripDays, groupByWorkstream, weekBars } from './home-calc'
+import { needsAttentionDates, weekStripDays, groupByCategory, weekBars } from './home-calc'
 
 export default async function HomePage() {
   const supabase = await createClient()
@@ -45,8 +45,8 @@ export default async function HomePage() {
       logDate={logDate}
       weekStart={weekStart}
       stripDays={weekStripDays(entries, today)}
-      todayBreakdown={groupByWorkstream(todayEntries, nodes ?? [])}
-      weekByWorkstream={groupByWorkstream(weekEntries ?? [], nodes ?? [])}
+      todayBreakdown={groupByCategory(todayEntries, nodes ?? [])}
+      weekByCategory={groupByCategory(weekEntries ?? [], nodes ?? [])}
       bars={weekBars(weekEntries ?? [], weekStart)}
     />
   )

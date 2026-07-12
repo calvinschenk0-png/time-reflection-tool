@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { Card, SectionHeading, ColorDot } from '@/components/ui'
 import { formatDuration } from '@/lib/time'
 import RangeSelector from './RangeSelector'
-import { ProjectGroup, ContactGroup, rangeLabel } from './insights-calc'
+import { AreaGroup, ContactGroup, rangeLabel } from './insights-calc'
 
 const ACCENT = '#2563eb'
 const BORDER = '#e4e4e7'
@@ -16,7 +16,7 @@ export default function InsightsDashboard({
   rangeEnd,
   totalMinutes,
   expectedMinutes,
-  projectGroups,
+  areaGroups,
   contactGroups,
 }: {
   range: 'week' | 'month' | 'custom'
@@ -24,7 +24,7 @@ export default function InsightsDashboard({
   rangeEnd: string
   totalMinutes: number
   expectedMinutes: number
-  projectGroups: ProjectGroup[]
+  areaGroups: AreaGroup[]
   contactGroups: ContactGroup[]
 }) {
   const pct = expectedMinutes > 0 ? Math.min(100, Math.round((totalMinutes / expectedMinutes) * 100)) : null
@@ -54,15 +54,15 @@ export default function InsightsDashboard({
         </p>
       </Card>
 
-      {/* Project -> Workstream */}
+      {/* Area -> Category */}
       <Card>
-        <SectionHeading>Time by project</SectionHeading>
-        {projectGroups.length === 0 ? (
+        <SectionHeading>Time by area</SectionHeading>
+        {areaGroups.length === 0 ? (
           <p style={{ fontSize: 13, color: MUTED }}>No entries logged in this range.</p>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-            {projectGroups.map(p => (
-              <ProjectRow key={p.projectName} project={p} />
+            {areaGroups.map(a => (
+              <AreaRow key={a.areaName} area={a} />
             ))}
           </div>
         )}
@@ -95,15 +95,15 @@ export default function InsightsDashboard({
   )
 }
 
-function ProjectRow({ project }: { project: ProjectGroup }) {
+function AreaRow({ area }: { area: AreaGroup }) {
   const [open, setOpen] = useState(true)
-  const hasWorkstreams = project.workstreams.length > 0
+  const hasCategories = area.categories.length > 0
 
   return (
     <div style={{ borderTop: `1px solid ${BORDER}`, paddingTop: 8, marginTop: 4 }}>
       <button
         type="button"
-        onClick={() => hasWorkstreams && setOpen(o => !o)}
+        onClick={() => hasCategories && setOpen(o => !o)}
         style={{
           display: 'flex',
           alignItems: 'center',
@@ -112,26 +112,26 @@ function ProjectRow({ project }: { project: ProjectGroup }) {
           background: 'none',
           border: 'none',
           padding: '4px 0',
-          cursor: hasWorkstreams ? 'pointer' : 'default',
+          cursor: hasCategories ? 'pointer' : 'default',
           textAlign: 'left',
         }}
       >
-        {hasWorkstreams && (
+        {hasCategories && (
           <span style={{ color: MUTED, fontSize: 10, transform: open ? 'rotate(90deg)' : 'none', transition: 'transform 0.1s', width: 10 }}>
             ▶
           </span>
         )}
-        <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 600, color: '#111', flex: 1 }}>{project.projectName}</span>
-        <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 700, color: '#111' }}>{formatDuration(project.minutes)}</span>
+        <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 600, color: '#111', flex: 1 }}>{area.areaName}</span>
+        <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 700, color: '#111' }}>{formatDuration(area.minutes)}</span>
       </button>
 
-      {open && hasWorkstreams && (
+      {open && hasCategories && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8, padding: '6px 0 8px 18px' }}>
-          {project.workstreams.map(w => (
-            <div key={w.id} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <ColorDot color={w.color} />
-              <span style={{ fontSize: 13, color: '#333', flex: 1 }}>{w.name}</span>
-              <span style={{ fontSize: 12, color: MUTED }}>{formatDuration(w.minutes)}</span>
+          {area.categories.map(c => (
+            <div key={c.id} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <ColorDot color={c.color} />
+              <span style={{ fontSize: 13, color: '#333', flex: 1 }}>{c.name}</span>
+              <span style={{ fontSize: 12, color: MUTED }}>{formatDuration(c.minutes)}</span>
             </div>
           ))}
         </div>

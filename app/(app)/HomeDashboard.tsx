@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { Card, SectionHeading, Badge, ColorDot } from '@/components/ui'
 import { formatDuration, shortDayLabel, weekRangeLabel } from '@/lib/time'
-import { WorkstreamGroup, WeekBar, DayStatus } from './home-calc'
+import { CategoryGroup, WeekBar, DayStatus } from './home-calc'
 
 const ACCENT = '#2563eb'
 const BORDER = '#e4e4e7'
@@ -21,7 +21,7 @@ export default function HomeDashboard({
   weekStart,
   stripDays,
   todayBreakdown,
-  weekByWorkstream,
+  weekByCategory,
   bars,
 }: {
   today: string
@@ -33,8 +33,8 @@ export default function HomeDashboard({
   logDate: string
   weekStart: string
   stripDays: StripDay[]
-  todayBreakdown: WorkstreamGroup[]
-  weekByWorkstream: WorkstreamGroup[]
+  todayBreakdown: CategoryGroup[]
+  weekByCategory: CategoryGroup[]
   bars: WeekBar[]
 }) {
   const hours = todayMinutes / 60
@@ -46,7 +46,7 @@ export default function HomeDashboard({
   const dash = (pct / 100) * circ
 
   const todayTotal = todayBreakdown.reduce((s, g) => s + g.minutes, 0)
-  const weekTotal = weekByWorkstream.reduce((s, g) => s + g.minutes, 0)
+  const weekTotal = weekByCategory.reduce((s, g) => s + g.minutes, 0)
 
   if (!hasCategories) {
     return (
@@ -59,7 +59,7 @@ export default function HomeDashboard({
             Welcome to Time Reflection
           </p>
           <p style={{ fontSize: 13, color: MUTED, lineHeight: 1.5, marginBottom: 20 }}>
-            Before you log your first day, set up at least one project and workstream — that&rsquo;s what colours your calendar and powers your breakdowns.
+            Before you log your first day, set up at least one area and category — that&rsquo;s what colours your calendar and powers your breakdowns.
           </p>
           <Link
             href="/settings?tab=Categories"
@@ -77,7 +77,7 @@ export default function HomeDashboard({
               textDecoration: 'none',
             }}
           >
-            Set up your first project
+            Set up your first area
           </Link>
         </Card>
       </div>
@@ -205,9 +205,9 @@ export default function HomeDashboard({
         </p>
       </Card>
 
-      {/* Today by workstream */}
+      {/* Today by category */}
       <Card>
-        <SectionHeading>Today by workstream</SectionHeading>
+        <SectionHeading>Today by category</SectionHeading>
         {todayBreakdown.length === 0 ? (
           <p style={{ fontSize: 13, color: MUTED }}>Nothing logged yet today — hit &ldquo;Log your time&rdquo; to get started.</p>
         ) : (
@@ -222,7 +222,7 @@ export default function HomeDashboard({
                 <div key={g.id} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                   <ColorDot color={g.color} />
                   <span style={{ fontSize: 13, color: '#111', flex: 1, fontWeight: 500 }}>{g.name}</span>
-                  {g.projectName && <span style={{ fontSize: 12, color: MUTED }}>{g.projectName}</span>}
+                  {g.areaName && <span style={{ fontSize: 12, color: MUTED }}>{g.areaName}</span>}
                   <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 13, fontWeight: 700, color: '#111', minWidth: 48, textAlign: 'right' }}>
                     {formatDuration(g.minutes)}
                   </span>
@@ -256,14 +256,14 @@ export default function HomeDashboard({
         </Card>
       </Link>
 
-      {/* This week by workstream */}
+      {/* This week by category */}
       <Card>
-        <SectionHeading>This week by workstream</SectionHeading>
-        {weekByWorkstream.length === 0 ? (
+        <SectionHeading>This week by category</SectionHeading>
+        {weekByCategory.length === 0 ? (
           <p style={{ fontSize: 13, color: MUTED }}>No entries logged this week yet.</p>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {weekByWorkstream.map(g => {
+            {weekByCategory.map(g => {
               const pct = weekTotal > 0 ? Math.round((g.minutes / weekTotal) * 100) : 0
               return (
                 <div key={g.id} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>

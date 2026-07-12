@@ -54,16 +54,18 @@ export function PrimaryButton({ children, onClick, type = 'button', disabled, st
   )
 }
 
-export function SecondaryButton({ children, onClick, type = 'button', style }: {
+export function SecondaryButton({ children, onClick, type = 'button', disabled, style }: {
   children: React.ReactNode
   onClick?: () => void
   type?: 'button' | 'submit'
+  disabled?: boolean
   style?: React.CSSProperties
 }) {
   return (
     <button
       type={type}
       onClick={onClick}
+      disabled={disabled}
       style={{
         background: '#fff',
         color: '#111',
@@ -72,7 +74,8 @@ export function SecondaryButton({ children, onClick, type = 'button', style }: {
         padding: '9px 18px',
         fontSize: 13,
         fontWeight: 500,
-        cursor: 'pointer',
+        cursor: disabled ? 'not-allowed' : 'pointer',
+        opacity: disabled ? 0.5 : 1,
         ...style,
       }}
     >

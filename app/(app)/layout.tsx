@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import NavBar from '@/components/NavBar'
+import { seedDefaultCategories } from '@/lib/defaultCategories'
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
@@ -17,6 +18,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   if (!settings) {
     await supabase.from('user_settings').insert({ user_id: user.id })
+    await seedDefaultCategories(supabase, user.id)
   }
 
   return (

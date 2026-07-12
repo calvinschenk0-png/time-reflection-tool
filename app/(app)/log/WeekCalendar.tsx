@@ -145,7 +145,7 @@ export default function WeekCalendar({ weekDates, entries, nodes, contacts, expe
   function effEnd(e: Entry) { return preview?.id === e.id ? preview.end : timeToMinutes(e.end_time) }
 
   function nodeFor(id: string | null) { return id ? nodes.find(n => n.id === id) ?? null : null }
-  function projectFor(node: Node | null) {
+  function areaFor(node: Node | null) {
     if (!node) return null
     return node.parent_id ? nodes.find(n => n.id === node.parent_id) ?? null : node
   }
@@ -236,7 +236,7 @@ export default function WeekCalendar({ weekDates, entries, nodes, contacts, expe
                   const end = effEnd(entry)
                   const height = Math.max(16, (end - start) * PXPM)
                   const node = nodeFor(entry.hierarchy_node_id)
-                  const project = projectFor(node)
+                  const area = areaFor(node)
                   const complete = isComplete(entry)
                   const color = complete ? (node?.color ?? '#16a34a') : '#d97706'
                   const selected = entry.id === selectedId
@@ -259,14 +259,14 @@ export default function WeekCalendar({ weekDates, entries, nodes, contacts, expe
                       }}
                     >
                       <div onPointerDown={e => beginDrag(e, entry, 'top')} style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 6, cursor: 'ns-resize' }} />
-                      {/* Workstream */}
+                      {/* Category */}
                       <div style={{ fontSize: 10, fontWeight: 600, color: '#111', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                         {node ? node.name : 'Draft'}
                       </div>
-                      {/* Project */}
-                      {project && (
+                      {/* Area */}
+                      {area && (
                         <div style={{ fontSize: 9, color: '#444', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                          {project.name}
+                          {area.name}
                         </div>
                       )}
                       {/* Time */}

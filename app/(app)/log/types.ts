@@ -1,7 +1,7 @@
 export type Node = {
   id: string
   name: string
-  level: 'project' | 'workstream'
+  level: 'area' | 'category'
   parent_id: string | null
   color: string | null
   is_archived: boolean

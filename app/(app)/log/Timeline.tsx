@@ -99,7 +99,7 @@ export default function Timeline({ entries, nodes, selectedId, onSelect, onCommi
   }
 
   function nodeFor(id: string | null) { return id ? nodes.find(n => n.id === id) ?? null : null }
-  function projectFor(node: Node | null) {
+  function areaFor(node: Node | null) {
     if (!node) return null
     return node.parent_id ? nodes.find(n => n.id === node.parent_id) ?? null : node
   }
@@ -154,7 +154,7 @@ export default function Timeline({ entries, nodes, selectedId, onSelect, onCommi
           const end = effEnd(entry)
           const height = Math.max(18, (end - start) * PX_PER_MIN)
           const node = nodeFor(entry.hierarchy_node_id)
-          const project = projectFor(node)
+          const area = areaFor(node)
           const complete = isComplete(entry)
           const color = complete ? (node?.color ?? '#16a34a') : '#d97706'
           const selected = entry.id === selectedId
@@ -183,11 +183,11 @@ export default function Timeline({ entries, nodes, selectedId, onSelect, onCommi
                 style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 8, cursor: 'ns-resize' }}
               />
               <div style={{ fontSize: 11, fontWeight: 600, color: '#111', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                {node ? node.name : 'Draft — pick a workstream'}
+                {node ? node.name : 'Draft — pick a category'}
               </div>
               {height > 32 && (
                 <div style={{ fontSize: 10, color: '#666', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                  {project && complete ? `${project.name} · ` : ''}{formatClock(timeStr(start))}–{formatClock(timeStr(end))}
+                  {area && complete ? `${area.name} · ` : ''}{formatClock(timeStr(start))}–{formatClock(timeStr(end))}
                 </div>
               )}
               {/* Bottom resize handle */}
