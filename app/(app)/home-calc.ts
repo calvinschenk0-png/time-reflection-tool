@@ -9,7 +9,7 @@ export type EntryRow = {
 export type NodeRow = {
   id: string
   name: string
-  level: 'project' | 'workstream'
+  level: 'area' | 'category'
   parent_id: string | null
   color: string | null
 }
@@ -27,8 +27,8 @@ function byDate(entries: EntryRow[]): Map<string, EntryRow[]> {
   return map
 }
 
-// A day is 'complete' once every one of its entries has a workstream.
-// Zero entries is 'empty'; any draft entry (no workstream yet) makes it 'draft'.
+// A day is 'complete' once every one of its entries has a category.
+// Zero entries is 'empty'; any draft entry (no category yet) makes it 'draft'.
 export function dayStatus(entries: EntryRow[]): DayStatus {
   if (entries.length === 0) return 'empty'
   return entries.every(e => e.hierarchy_node_id) ? 'complete' : 'draft'
@@ -58,17 +58,17 @@ export function weekStripDays(entries: EntryRow[], today: string): { date: strin
   return days
 }
 
-export type WorkstreamGroup = {
+export type CategoryGroup = {
   id: string
   name: string
-  projectName: string | null
+  areaName: string | null
   color: string
   minutes: number
 }
 
-// Sums entry minutes by workstream, resolving each workstream's parent project name.
-// Entries with no workstream yet (drafts) bucket into a single amber "Unassigned draft" group.
-export function groupByWorkstream(entries: EntryRow[], nodes: NodeRow[]): WorkstreamGroup[] {
+// Sums entry minutes by category, resolving each category's parent area name.
+// Entries with no category yet (drafts) bucket into a single amber "Unassigned draft" group.
+export function groupByCategory(entries: EntryRow[], nodes: NodeRow[]): CategoryGroup[] {
   const nodeById = new Map(nodes.map(n => [n.id, n]))
   const totals = new Map<string, number>()
   for (const e of entries) {
@@ -76,16 +76,16 @@ export function groupByWorkstream(entries: EntryRow[], nodes: NodeRow[]): Workst
     totals.set(key, (totals.get(key) ?? 0) + e.duration_minutes)
   }
 
-  const groups: WorkstreamGroup[] = []
+  const groups: CategoryGroup[] = []
   for (const [key, minutes] of totals) {
     if (key === '__draft__') {
-      groups.push({ id: '__draft__', name: 'Unassigned draft', projectName: null, color: DRAFT_COLOR, minutes })
+      groups.push({ id: '__draft__', name: 'Unassigned draft', areaName: null, color: DRAFT_COLOR, minutes })
       continue
     }
     const node = nodeById.get(key)
     if (!node) continue
-    const project = node.parent_id ? nodeById.get(node.parent_id) ?? null : null
-    groups.push({ id: node.id, name: node.name, projectName: project?.name ?? null, color: node.color ?? '#999999', minutes })
+    const area = node.parent_id ? nodeById.get(node.parent_id) ?? null : null
+    groups.push({ id: node.id, name: node.name, areaName: area?.name ?? null, color: node.color ?? '#999999', minutes })
   }
   return groups.sort((a, b) => b.minutes - a.minutes)
 }
