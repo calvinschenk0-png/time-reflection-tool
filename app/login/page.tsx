@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
+import { Card, Input, PrimaryButton } from '@/components/ui'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -45,59 +46,41 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-      <div className="w-full max-w-sm">
-        <h1 className="text-2xl font-bold text-center mb-2">Time Reflection</h1>
-        <p className="text-center text-gray-500 text-sm mb-8">
-          {mode === 'signin' ? 'Sign in to your account' : 'Create a new account'}
-        </p>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+      <div style={{ width: '100%', maxWidth: 360 }}>
+        <div style={{ textAlign: 'center', marginBottom: 28 }}>
+          <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 22, fontWeight: 700, color: '#111', letterSpacing: '-0.02em', marginBottom: 8 }}>
+            Time Reflection
+          </p>
+          <p style={{ fontSize: 13, color: '#999', lineHeight: 1.5 }}>
+            A private log of where your workday actually goes — by project, workstream, and who you spent it with.
+          </p>
+        </div>
 
-        <form onSubmit={handleSubmit} className="bg-white shadow rounded-xl p-8 space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="you@example.com"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-            <input
-              type="password"
-              required
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="••••••••"
-            />
-          </div>
+        <Card>
+          <form onSubmit={handleSubmit}>
+            <Input label="Email" type="email" value={email} onChange={setEmail} placeholder="you@example.com" />
+            <Input label="Password" type="password" value={password} onChange={setPassword} placeholder="••••••••" />
 
-          {error && <p className="text-red-600 text-sm">{error}</p>}
-          {message && <p className="text-green-600 text-sm">{message}</p>}
+            {error && <p style={{ color: '#dc2626', fontSize: 12, marginBottom: 12 }}>{error}</p>}
+            {message && <p style={{ color: '#16a34a', fontSize: 12, marginBottom: 12 }}>{message}</p>}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-blue-600 text-white rounded-lg py-2 text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
-          >
-            {loading ? 'Loading…' : mode === 'signin' ? 'Sign in' : 'Create account'}
-          </button>
-        </form>
+            <PrimaryButton type="submit" disabled={loading} style={{ width: '100%', marginTop: 4 }}>
+              {loading ? 'Loading…' : mode === 'signin' ? 'Sign in' : 'Create account'}
+            </PrimaryButton>
+          </form>
+        </Card>
 
-        <p className="text-center text-sm text-gray-500 mt-4">
+        <p style={{ textAlign: 'center', fontSize: 13, color: '#999' }}>
           {mode === 'signin' ? (
             <>No account?{' '}
-              <button onClick={() => setMode('signup')} className="text-blue-600 hover:underline">
+              <button onClick={() => setMode('signup')} style={{ color: '#2563eb', background: 'none', border: 'none', cursor: 'pointer', fontSize: 13 }}>
                 Sign up
               </button>
             </>
           ) : (
             <>Already have an account?{' '}
-              <button onClick={() => setMode('signin')} className="text-blue-600 hover:underline">
+              <button onClick={() => setMode('signin')} style={{ color: '#2563eb', background: 'none', border: 'none', cursor: 'pointer', fontSize: 13 }}>
                 Sign in
               </button>
             </>

@@ -1,7 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request })
 
   const supabase = createServerClient(
@@ -28,7 +28,7 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // Allow login page and auth callback through without a session
-  const isPublicPath = pathname === '/login' || pathname.startsWith('/auth/') || pathname.startsWith('/design/')
+  const isPublicPath = pathname === '/login' || pathname.startsWith('/auth/')
 
   if (!user && !isPublicPath) {
     return NextResponse.redirect(new URL('/login', request.url))

@@ -13,6 +13,7 @@ type StripDay = { date: string; status: DayStatus; isToday: boolean }
 export default function HomeDashboard({
   today,
   isWeekendToday,
+  hasCategories,
   todayMinutes,
   expectedMinutes,
   attentionCount,
@@ -25,6 +26,7 @@ export default function HomeDashboard({
 }: {
   today: string
   isWeekendToday: boolean
+  hasCategories: boolean
   todayMinutes: number
   expectedMinutes: number
   attentionCount: number
@@ -45,6 +47,42 @@ export default function HomeDashboard({
 
   const todayTotal = todayBreakdown.reduce((s, g) => s + g.minutes, 0)
   const weekTotal = weekByWorkstream.reduce((s, g) => s + g.minutes, 0)
+
+  if (!hasCategories) {
+    return (
+      <div style={{ width: '100%', maxWidth: 560, margin: '0 auto', padding: '28px 24px 80px' }}>
+        <p style={{ fontSize: 12, color: MUTED, marginBottom: 16, fontWeight: 500 }}>
+          {new Date(today + 'T00:00:00').toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+        </p>
+        <Card>
+          <p style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 20, fontWeight: 700, color: '#111', marginBottom: 8, letterSpacing: '-0.02em' }}>
+            Welcome to Time Reflection
+          </p>
+          <p style={{ fontSize: 13, color: MUTED, lineHeight: 1.5, marginBottom: 20 }}>
+            Before you log your first day, set up at least one project and workstream — that&rsquo;s what colours your calendar and powers your breakdowns.
+          </p>
+          <Link
+            href="/settings?tab=Categories"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: '#111',
+              color: '#fff',
+              borderRadius: 10,
+              padding: '11px 18px',
+              fontSize: 13,
+              fontWeight: 600,
+              fontFamily: "'Space Grotesk', sans-serif",
+              textDecoration: 'none',
+            }}
+          >
+            Set up your first project
+          </Link>
+        </Card>
+      </div>
+    )
+  }
 
   return (
     <div style={{ width: '100%', maxWidth: 560, margin: '0 auto', padding: '28px 24px 80px' }}>

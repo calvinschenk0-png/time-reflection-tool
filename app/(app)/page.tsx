@@ -38,6 +38,7 @@ export default async function HomePage() {
     <HomeDashboard
       today={today}
       isWeekendToday={!isWeekday(today)}
+      hasCategories={(nodes ?? []).length > 0}
       todayMinutes={todayMinutes}
       expectedMinutes={expectedMinutes}
       attentionCount={attention.length}
