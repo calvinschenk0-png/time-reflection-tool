@@ -1,10 +1,10 @@
 import { createClient } from '@/lib/supabase/server'
-import { todayStr, weekStartOf, shiftDate, monthStartOf, monthEndOf } from '@/lib/time'
+import { todayStr, weekStartOf, shiftDate, monthStartOf, monthEndOf, isValidDateStr } from '@/lib/time'
 import LogDay from './LogDay'
 
 export default async function LogPage({ searchParams }: { searchParams: Promise<{ date?: string; view?: string }> }) {
   const params = await searchParams
-  const date = params.date ?? todayStr()
+  const date = isValidDateStr(params.date) ? params.date : todayStr()
   const view: 'week' | 'month' = params.view === 'month' ? 'month' : 'week'
   const weekStart = weekStartOf(date)
   const mStart = monthStartOf(date)

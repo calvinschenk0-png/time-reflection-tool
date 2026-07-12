@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
-import { todayStr, weekStartOf, monthStartOf, monthEndOf, shiftDate } from '@/lib/time'
+import { todayStr, weekStartOf, monthStartOf, monthEndOf, shiftDate, isValidDateStr } from '@/lib/time'
 import InsightsDashboard from './InsightsDashboard'
 import { groupByWorkstream, groupByProject, groupByContact, expectedMinutesForRange } from './insights-calc'
 
@@ -15,7 +15,7 @@ export default async function InsightsPage({ searchParams }: { searchParams: Pro
   if (range === 'month') {
     rangeStart = monthStartOf(today)
     rangeEnd = monthEndOf(today)
-  } else if (range === 'custom' && params.start && params.end && params.start <= params.end) {
+  } else if (range === 'custom' && isValidDateStr(params.start) && isValidDateStr(params.end) && params.start <= params.end) {
     rangeStart = params.start
     rangeEnd = params.end
   } else {

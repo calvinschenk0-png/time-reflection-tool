@@ -52,6 +52,12 @@ export function todayStr(): string {
   return new Date().toISOString().slice(0, 10)
 }
 
+// Guards against malformed "YYYY-MM-DD" input (e.g. a hand-edited or stale URL)
+export function isValidDateStr(dateStr: string | undefined): dateStr is string {
+  if (!dateStr || !/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return false
+  return !isNaN(new Date(dateStr + 'T00:00:00').getTime())
+}
+
 // True for Mon–Fri (excludes weekends from workday coverage math)
 export function isWeekday(dateStr: string): boolean {
   const g = new Date(dateStr + 'T00:00:00').getDay()
