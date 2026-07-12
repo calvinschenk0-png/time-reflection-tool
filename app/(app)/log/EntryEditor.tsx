@@ -42,11 +42,11 @@ export default function EntryEditor({ entry, nodes, contacts, onUpdate, onDelete
         {invalid ? 'End must be after start' : formatDuration(end - start)}
       </p>
 
-      {/* Project + Workstream */}
+      {/* Area + Category */}
       <div style={{ marginBottom: 16 }}>
         <CategoryPicker
           nodes={nodes}
-          selectedWorkstreamId={entry.hierarchy_node_id}
+          selectedCategoryId={entry.hierarchy_node_id}
           onPick={(id) => onUpdate(entry.id, { hierarchy_node_id: id })}
           onNodesChanged={onNodesChanged}
         />
