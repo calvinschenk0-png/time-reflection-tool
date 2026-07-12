@@ -60,10 +60,12 @@ type NodeRow = { id: string; name: string; level: 'area' | 'category'; parent_id
 // whose name already exists (case-insensitive, active or archived) so it's
 // safe to call both on first login and from a "Restore defaults" action.
 export async function seedDefaultCategories(supabase: SupabaseClient, userId: string): Promise<void> {
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('hierarchy_nodes')
     .select('id, name, level, parent_id')
     .eq('user_id', userId)
+
+  if (error) return
 
   const existingNodes: NodeRow[] = data ?? []
   const areaByName = new Map(

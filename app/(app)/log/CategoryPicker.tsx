@@ -98,7 +98,7 @@ export default function CategoryPicker({ nodes, selectedCategoryId, onPick, onNo
                 ))}
                 {areaMatches.length === 0 && <div style={emptyRow}>No matches</div>}
                 <button onClick={() => { setACreating(true); setAName(aQuery) }} style={{ ...optionRow, color: '#2563eb', fontWeight: 600, borderTop: '1px solid #f0f0f0' }}>
-                  + New area{aQuery ? ` "${aQuery}"` : ''}
+                  + New area{aQuery ? ` “${aQuery}”` : ''}
                 </button>
               </div>
             )}
@@ -120,7 +120,7 @@ export default function CategoryPicker({ nodes, selectedCategoryId, onPick, onNo
               <button key={c} onClick={() => setCColor(c)} style={{ width: 22, height: 22, borderRadius: 5, background: c, border: 'none', cursor: 'pointer', outline: cColor === c ? `2px solid ${c}` : 'none', outlineOffset: 2 }} />
             ))}
           </div>
-          {cDup && <p style={dupStyle}>You already have "{cDup}". Click Save again to add anyway.</p>}
+          {cDup && <p style={dupStyle}>You already have “{cDup}”. Click Save again to add anyway.</p>}
           <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
             <button onClick={createCategory} disabled={!cName.trim()} style={saveBtn}>Save</button>
             <button onClick={() => { setCCreating(false); setCName(''); setCDup(null) }} style={cancelBtn}>Cancel</button>
@@ -149,7 +149,7 @@ export default function CategoryPicker({ nodes, selectedCategoryId, onPick, onNo
               ))}
               {catMatches.length === 0 && <div style={emptyRow}>No matches in this area</div>}
               <button onClick={() => { setCCreating(true); setCName(cQuery) }} style={{ ...optionRow, color: '#2563eb', fontWeight: 600, borderTop: '1px solid #f0f0f0' }}>
-                + New category{cQuery ? ` "${cQuery}"` : ''}
+                + New category{cQuery ? ` “${cQuery}”` : ''}
               </button>
             </div>
           )}
